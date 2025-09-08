@@ -405,11 +405,11 @@ export function ShareButton({ analysis }: ShareButtonProps) {
                 <Download className="mr-2 h-4 w-4" />
                 {downloading ? "生成中..." : "下载为图片"}
               </Button>
-              <Button variant="outline" onClick={handleCopyLink} className="flex-1 bg-transparent">
+              <Button variant="outline" onClick={handleCopyLink} className="flex-1 bg-transparent hover:bg-gray-50 hover:text-gray-900">
                 {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
                 {copied ? "已复制！" : "复制链接"}
               </Button>
-              <Button variant="outline" onClick={() => window.open(window.location.href, "_blank")} className="flex-1">
+              <Button variant="outline" onClick={() => window.open(window.location.href, "_blank")} className="flex-1 hover:bg-gray-50 hover:text-gray-900">
                 <ExternalLink className="mr-2 h-4 w-4" />
                 在新标签页打开
               </Button>

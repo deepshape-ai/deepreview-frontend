@@ -22,12 +22,14 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
   const upperJawModelRef = useRef<any>(null)
   const lowerJawModelRef = useRef<any>(null)
   const restorationModelRef = useRef<any>(null)
+  const sphericalPositionRef = useRef<any>(null)
 
   const [showUpperJaw, setShowUpperJaw] = useState(true)
   const [showLowerJaw, setShowLowerJaw] = useState(true)
   const [showRestoration, setShowRestoration] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [forceRender, setForceRender] = useState(0)
 
   useEffect(() => {
     if (!mountRef.current) return
@@ -60,16 +62,18 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
         let previousMousePosition = { x: 0, y: 0 }
         
         // 球坐标系用于稳定的旋转
-        let sphericalPosition = {
+        sphericalPositionRef.current = {
           radius: Math.sqrt(camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2),
           theta: Math.atan2(camera.position.x, camera.position.z), // 水平角度
           phi: Math.acos(camera.position.y / Math.sqrt(camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2)) // 垂直角度
         }
 
         const updateCameraFromSpherical = () => {
-          camera.position.x = sphericalPosition.radius * Math.sin(sphericalPosition.phi) * Math.sin(sphericalPosition.theta)
-          camera.position.y = sphericalPosition.radius * Math.cos(sphericalPosition.phi)
-          camera.position.z = sphericalPosition.radius * Math.sin(sphericalPosition.phi) * Math.cos(sphericalPosition.theta)
+          if (!sphericalPositionRef.current) return
+          const pos = sphericalPositionRef.current
+          camera.position.x = pos.radius * Math.sin(pos.phi) * Math.sin(pos.theta)
+          camera.position.y = pos.radius * Math.cos(pos.phi)
+          camera.position.z = pos.radius * Math.sin(pos.phi) * Math.cos(pos.theta)
           camera.lookAt(0, 0, 0)
         }
 
@@ -95,12 +99,13 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
 
           if (isRotating) {
             // 左键旋转 - 使用球坐标系
+            if (!sphericalPositionRef.current) return
             const rotationSpeed = 0.005
-            sphericalPosition.theta += deltaMove.x * rotationSpeed
-            sphericalPosition.phi += deltaMove.y * rotationSpeed
+            sphericalPositionRef.current.theta += deltaMove.x * rotationSpeed
+            sphericalPositionRef.current.phi += deltaMove.y * rotationSpeed
             
             // 限制垂直旋转角度，避免翻转
-            sphericalPosition.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalPosition.phi))
+            sphericalPositionRef.current.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalPositionRef.current.phi))
             
             updateCameraFromSpherical()
           } else if (isPanning) {
@@ -120,7 +125,9 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
             camera.position.add(panVector)
             
             // 更新球坐标系以保持一致性
-            sphericalPosition.radius = Math.sqrt(camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2)
+            if (sphericalPositionRef.current) {
+              sphericalPositionRef.current.radius = Math.sqrt(camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2)
+            }
           }
 
           previousMousePosition = { x: event.clientX, y: event.clientY }
@@ -136,11 +143,13 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
           event.preventDefault() // 阻止页面滚动
           event.stopPropagation()
           
+          if (!sphericalPositionRef.current) return
+          
           const zoomSpeed = 0.1
           const zoomFactor = event.deltaY > 0 ? 1 + zoomSpeed : 1 - zoomSpeed
           
-          sphericalPosition.radius *= zoomFactor
-          sphericalPosition.radius = Math.max(5, Math.min(100, sphericalPosition.radius)) // 限制缩放范围
+          sphericalPositionRef.current.radius *= zoomFactor
+          sphericalPositionRef.current.radius = Math.max(5, Math.min(100, sphericalPositionRef.current.radius)) // 限制缩放范围
           
           updateCameraFromSpherical()
         }
@@ -308,9 +317,9 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
 
         if (geometry) {
           geometry.computeBoundingBox()
-          const box = geometry.boundingBox!
-          const center = box.getCenter(new THREE.Vector3())
-          geometry.translate(-center.x, -center.y, -center.z)
+          // const box = geometry.boundingBox!
+          // const center = box.getCenter(new THREE.Vector3())
+          // geometry.translate(-center.x, -center.y, -center.z)
 
           // const size = box.getSize(new THREE.Vector3())
           // const maxSize = Math.max(size.x, size.y, size.z)
@@ -531,60 +540,69 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
   }, [upperJawUrl, lowerJawUrl, restorationUrl])
 
   useEffect(() => {
+    console.log("Upper jaw visibility changed:", showUpperJaw, "Model ref:", !!upperJawModelRef.current)
     if (upperJawModelRef.current) {
       upperJawModelRef.current.visible = showUpperJaw
+      console.log("Set upper jaw visible to:", showUpperJaw)
     }
   }, [showUpperJaw])
 
   useEffect(() => {
+    console.log("Lower jaw visibility changed:", showLowerJaw, "Model ref:", !!lowerJawModelRef.current)
     if (lowerJawModelRef.current) {
       lowerJawModelRef.current.visible = showLowerJaw
+      console.log("Set lower jaw visible to:", showLowerJaw)
     }
   }, [showLowerJaw])
 
   useEffect(() => {
+    console.log("Restoration visibility changed:", showRestoration, "Model ref:", !!restorationModelRef.current)
     if (restorationModelRef.current) {
       restorationModelRef.current.visible = showRestoration
+      console.log("Set restoration visible to:", showRestoration)
     }
   }, [showRestoration])
 
+  // 强制重新渲染效果
+  useEffect(() => {
+    if (rendererRef.current && sceneRef.current && cameraRef.current) {
+      rendererRef.current.render(sceneRef.current, cameraRef.current)
+    }
+  }, [forceRender])
+
   const handleResetView = () => {
+    console.log("Reset View clicked")
     if (cameraRef.current) {
       cameraRef.current.position.set(30, 20, 30)
       cameraRef.current.lookAt(0, 0, 0)
-      
-      // 重置球坐标系状态
-      const sphericalPosition = {
-        radius: Math.sqrt(30 ** 2 + 20 ** 2 + 30 ** 2),
-        theta: Math.atan2(30, 30),
-        phi: Math.acos(20 / Math.sqrt(30 ** 2 + 20 ** 2 + 30 ** 2))
-      }
+      console.log("Camera reset to initial position")
+      setForceRender(prev => prev + 1) // 触发重新渲染
     }
   }
 
   const handleZoomIn = () => {
+    console.log("Zoom In clicked")
     if (cameraRef.current) {
-      // 使用球坐标系进行缩放
-      const currentRadius = Math.sqrt(
-        cameraRef.current.position.x ** 2 + 
-        cameraRef.current.position.y ** 2 + 
-        cameraRef.current.position.z ** 2
-      )
-      const newRadius = Math.max(5, currentRadius * 0.9)
-      cameraRef.current.position.multiplyScalar(newRadius / currentRadius)
+      // 直接缩放相机位置
+      const currentDistance = cameraRef.current.position.length()
+      const newDistance = Math.max(5, currentDistance * 0.8)
+      cameraRef.current.position.normalize().multiplyScalar(newDistance)
+      cameraRef.current.lookAt(0, 0, 0)
+      console.log("Camera zoomed in to distance:", newDistance)
+      setForceRender(prev => prev + 1) // 触发重新渲染
     }
   }
 
   const handleZoomOut = () => {
+    console.log("Zoom Out clicked")
     if (cameraRef.current) {
-      // 使用球坐标系进行缩放
-      const currentRadius = Math.sqrt(
-        cameraRef.current.position.x ** 2 + 
-        cameraRef.current.position.y ** 2 + 
-        cameraRef.current.position.z ** 2
-      )
-      const newRadius = Math.min(100, currentRadius * 1.1)
-      cameraRef.current.position.multiplyScalar(newRadius / currentRadius)
+      // 直接缩放相机位置
+      const currentDistance = cameraRef.current.position.length()
+      const newDistance = Math.min(100, currentDistance * 1.25)
+      cameraRef.current.position.normalize().multiplyScalar(newDistance)
+      cameraRef.current.lookAt(0, 0, 0)
+      console.log("Camera zoomed out to distance:", newDistance)
+      setForceRender(prev => prev + 1) // 触发重新渲染
     }
   }
 
@@ -611,28 +629,40 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
               variant="outline"
               size="sm"
               onClick={() => setShowUpperJaw(!showUpperJaw)}
-              className={showUpperJaw ? "bg-gray-100 text-gray-700" : ""}
+              className={`flex items-center space-x-1 ${
+                showUpperJaw 
+                  ? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100" 
+                  : "bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100"
+              }`}
             >
               {showUpperJaw ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-              上颌
+              <span>上颌</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowLowerJaw(!showLowerJaw)}
-              className={showLowerJaw ? "bg-gray-100 text-gray-700" : ""}
+              className={`flex items-center space-x-1 ${
+                showLowerJaw 
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100" 
+                  : "bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100"
+              }`}
             >
               {showLowerJaw ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-              下颌
+              <span>下颌</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowRestoration(!showRestoration)}
-              className={showRestoration ? "bg-gray-100 text-gray-700" : ""}
+              className={`flex items-center space-x-1 ${
+                showRestoration 
+                  ? "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100" 
+                  : "bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100"
+              }`}
             >
               {showRestoration ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-              修复体
+              <span>修复体</span>
             </Button>
           </div>
         </CardTitle>
@@ -677,13 +707,31 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
           </div>
 
           <div className="flex space-x-2">
-            <Button variant="outline" size="sm" onClick={handleZoomIn} className="bg-white shadow-sm">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleZoomIn} 
+              className="bg-white shadow-sm hover:bg-gray-50 border-gray-200 text-gray-700 hover:text-gray-800"
+              title="放大"
+            >
               <ZoomIn className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="sm" onClick={handleZoomOut} className="bg-white shadow-sm">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleZoomOut} 
+              className="bg-white shadow-sm hover:bg-gray-50 border-gray-200 text-gray-700 hover:text-gray-800"
+              title="缩小"
+            >
               <ZoomOut className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="sm" onClick={handleResetView} className="bg-white shadow-sm">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleResetView} 
+              className="bg-white shadow-sm hover:bg-gray-50 border-gray-200 text-gray-700 hover:text-gray-800"
+              title="重置视图"
+            >
               <RotateCcw className="h-4 w-4" />
             </Button>
           </div>
