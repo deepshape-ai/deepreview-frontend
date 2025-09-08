@@ -19,6 +19,12 @@ export default function AnalysisDetailPage() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  // 统一的日期格式化函数，避免本地化差异导致的水合错误
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  }
+
   useEffect(() => {
     const id = params.id as string
     if (id) {
@@ -91,7 +97,7 @@ export default function AnalysisDetailPage() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-sm text-muted-foreground">
                 <div className="flex items-center space-x-1">
                   <Calendar className="h-4 w-4" />
-                  <span>{new Date(analysis.analysisDate).toLocaleDateString()}</span>
+                  <span>{formatDate(analysis.analysisDate)}</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <span>ID: {analysis.submissionId}</span>

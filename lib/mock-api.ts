@@ -44,6 +44,16 @@ export const FDI_TOOTH_POSITIONS: ToothPosition[] = [
 
 // Mock API service that simulates AI analysis
 export class MockAnalysisService {
+  // 生成基于文件内容的确定性哈希值
+  private static generateFileHash(input: string): number {
+    let hash = 0
+    for (let i = 0; i < input.length; i++) {
+      const char = input.charCodeAt(i)
+      hash = ((hash << 5) - hash) + char
+      hash = hash & hash // Convert to 32bit integer
+    }
+    return Math.abs(hash)
+  }
   static async analyzeModels(
     upperJawFile: File,
     lowerJawFile: File,
@@ -53,17 +63,18 @@ export class MockAnalysisService {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    // Generate mock analysis data
-    const submissionId = `sub_${Math.random().toString(36).substr(2, 9)}`
+    // 基于文件内容生成确定性的ID和日期，避免水合错误
+    const fileHash = this.generateFileHash(upperJawFile.name + lowerJawFile.name + restorationFile.name + toothPosition)
+    const submissionId = `sub_${fileHash.toString(36).substr(0, 9)}`
     const analysisDate = new Date().toISOString()
 
-    // Random scoring with some variation
+    // 基于文件内容生成确定性的评分，避免水合错误
     const scores = {
-      marginalFit: Math.floor(Math.random() * 5) + 15, // 15-20
-      axialContour: Math.floor(Math.random() * 6) + 14, // 14-19
-      proximalContact: Math.floor(Math.random() * 4) + 17, // 17-20
-      occlusalRelationship: Math.floor(Math.random() * 5) + 16, // 16-20
-      structuralAesthetics: Math.floor(Math.random() * 6) + 15, // 15-20
+      marginalFit: Math.floor((fileHash % 5) + 15), // 15-20
+      axialContour: Math.floor((fileHash % 6) + 14), // 14-19
+      proximalContact: Math.floor((fileHash % 4) + 17), // 17-20
+      occlusalRelationship: Math.floor(((fileHash * 3) % 5) + 16), // 16-20
+      structuralAesthetics: Math.floor(((fileHash * 7) % 6) + 15), // 15-20
     }
 
     const overallScore = Math.round(

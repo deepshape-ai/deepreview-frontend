@@ -46,6 +46,13 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
   }
 
   const getDimensionVisualContent = (dimension: string, score: number) => {
+    // 基于分数生成确定性的技术参数值，避免水合错误
+    const getDeterministicValue = (base: number, range: number, score: number) => {
+      // 使用分数的哈希值来生成确定性但看起来随机的值
+      const hash = (score * 17 + dimension.length * 7) % 100
+      return (base + (hash / 100) * range).toFixed(1)
+    }
+
     switch (dimension) {
       case "Marginal Fit":
         return {
@@ -58,25 +65,25 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center p-2 bg-white rounded border">
                     <span className="text-muted-foreground font-medium">边缘间隙：</span>
-                    <span className="font-mono font-bold text-slate-700">{(Math.random() * 50 + 10).toFixed(1)}μm</span>
+                    <span className="font-mono font-bold text-slate-700">{getDeterministicValue(10, 50, score)}μm</span>
                   </div>
                   <div className="flex justify-between items-center p-2 bg-white rounded border">
                     <span className="text-muted-foreground font-medium">粘接剂间隙：</span>
-                    <span className="font-mono font-bold text-slate-700">{(Math.random() * 30 + 20).toFixed(1)}μm</span>
+                    <span className="font-mono font-bold text-slate-700">{getDeterministicValue(20, 30, score)}μm</span>
                   </div>
                   <div className="flex justify-between items-center p-2 bg-white rounded border">
                     <span className="text-muted-foreground font-medium">垂直差异：</span>
-                    <span className="font-mono font-bold text-slate-700">{(Math.random() * 20 + 5).toFixed(1)}μm</span>
+                    <span className="font-mono font-bold text-slate-700">{getDeterministicValue(5, 20, score)}μm</span>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center p-2 bg-white rounded border">
                     <span className="text-muted-foreground font-medium">水平间隙：</span>
-                    <span className="font-mono font-bold text-slate-700">{(Math.random() * 25 + 8).toFixed(1)}μm</span>
+                    <span className="font-mono font-bold text-slate-700">{getDeterministicValue(8, 25, score)}μm</span>
                   </div>
                   <div className="flex justify-between items-center p-2 bg-white rounded border">
                     <span className="text-muted-foreground font-medium">适应性：</span>
-                    <span className="font-mono font-bold text-slate-700">{(85 + Math.random() * 12).toFixed(1)}%</span>
+                    <span className="font-mono font-bold text-slate-700">{getDeterministicValue(85, 12, score)}%</span>
                   </div>
                   <div className="flex justify-between items-center p-2 bg-white rounded border">
                     <span className="text-muted-foreground font-medium">密封质量：</span>

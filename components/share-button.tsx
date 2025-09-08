@@ -116,6 +116,12 @@ export function ShareButton({ analysis }: ShareButtonProps) {
   const [copied, setCopied] = useState(false)
   const [downloading, setDownloading] = useState(false)
 
+  // 统一的日期格式化函数，避免本地化差异导致的水合错误
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  }
+
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href)
@@ -235,7 +241,7 @@ export function ShareButton({ analysis }: ShareButtonProps) {
       // Footer
       ctx.font = "10px Arial"
       ctx.fillStyle = "#9ca3af"
-      ctx.fillText(`分析日期：${new Date(analysis.analysisDate).toLocaleDateString()}`, 40, 570)
+      ctx.fillText(`分析日期：${formatDate(analysis.analysisDate)}`, 40, 570)
       ctx.fillText(`ID：${analysis.submissionId}`, 600, 570)
 
       // Download
@@ -335,7 +341,7 @@ export function ShareButton({ analysis }: ShareButtonProps) {
                 </div>
 
                 <div className="text-center text-xs text-muted-foreground border-t pt-2">
-                  分析日期：{new Date(analysis.analysisDate).toLocaleDateString()} • ID：{" "}
+                  分析日期：{formatDate(analysis.analysisDate)} • ID：{" "}
                   {analysis.submissionId.slice(-8)}
                 </div>
               </CardContent>

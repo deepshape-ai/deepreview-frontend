@@ -212,7 +212,7 @@ export default function UploadPage() {
           )}
 
           <div className="text-center mt-8 space-y-2">
-            <p className="text-sm text-muted-foreground">支持格式：.STL、.OBJ、.PLY</p>
+            <p className="text-sm text-muted-foreground">支持格式：.OBJ</p>
             <p className="text-xs text-muted-foreground">分析通常需要2-3秒</p>
           </div>
         </div>

@@ -272,10 +272,17 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
             console.error("[v0] Failed to load restoration model:", error)
             const restorationGeometry = new THREE.CylinderGeometry(2, 3, 6, 8)
             const vertices = restorationGeometry.attributes.position.array
+            
+            // 使用确定性的伪随机值来避免水合错误
+            const getDeterministicOffset = (index: number, maxOffset: number) => {
+              const seed = (index * 17 + 7) % 100
+              return ((seed / 100) - 0.5) * maxOffset
+            }
+            
             for (let i = 0; i < vertices.length; i += 3) {
-              vertices[i] += (Math.random() - 0.5) * 0.8
-              vertices[i + 1] += (Math.random() - 0.5) * 0.4
-              vertices[i + 2] += (Math.random() - 0.5) * 0.8
+              vertices[i] += getDeterministicOffset(i, 0.8)
+              vertices[i + 1] += getDeterministicOffset(i + 1, 0.4)
+              vertices[i + 2] += getDeterministicOffset(i + 2, 0.8)
             }
             restorationGeometry.attributes.position.needsUpdate = true
             restorationGeometry.computeVertexNormals()

@@ -12,6 +12,11 @@ interface AnalysisHistoryCardProps {
 }
 
 export function AnalysisHistoryCard({ analysis, onClick }: AnalysisHistoryCardProps) {
+  // 统一的日期格式化函数，避免本地化差异导致的水合错误
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  }
   const getScoreColor = (score: number) => {
     if (score >= 90) return "text-green-600"
     if (score >= 80) return "text-blue-600"
@@ -43,7 +48,7 @@ export function AnalysisHistoryCard({ analysis, onClick }: AnalysisHistoryCardPr
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4 flex-shrink-0" />
-                  <span className="truncate">{new Date(analysis.analysisDate).toLocaleDateString()}</span>
+                  <span className="truncate">{formatDate(analysis.analysisDate)}</span>
                 </div>
                 <div className="text-sm text-muted-foreground hidden sm:block">
                   ID: {analysis.submissionId.slice(-8)}
