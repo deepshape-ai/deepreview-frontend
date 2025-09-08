@@ -4,7 +4,6 @@ import { useRef, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Eye, EyeOff, RotateCcw, ZoomIn, ZoomOut } from "lucide-react"
-import * as THREE from "three"
 
 interface ModelViewerProps {
   upperJawUrl?: string
@@ -34,10 +33,17 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
 
     const initThreeJS = async () => {
       try {
+        // Dynamic import of Three.js to avoid SSR issues
+        const THREE = await import("three")
+        const { OrbitControls } = await import("three/examples/jsm/controls/OrbitControls.js")
+        const { STLLoader } = await import("three/examples/jsm/loaders/STLLoader.js")
+        const { OBJLoader } = await import("three/examples/jsm/loaders/OBJLoader.js")
+
         const container = mountRef.current
         const containerWidth = container.clientWidth
-        const containerHeight = container.clientHeight || 600
+        const containerHeight = container.clientHeight || 500
 
+        // Scene setup
         const scene = new THREE.Scene()
         scene.background = new THREE.Color(0xf8f9fa)
         sceneRef.current = scene
@@ -54,114 +60,17 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
         renderer.shadowMap.type = THREE.PCFSoftShadowMap
         rendererRef.current = renderer
 
-        // 交互控制状态
-        let isRotating = false
-        let isPanning = false
-        let previousMousePosition = { x: 0, y: 0 }
-        
-        // 球坐标系用于稳定的旋转
-        let sphericalPosition = {
-          radius: Math.sqrt(camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2),
-          theta: Math.atan2(camera.position.x, camera.position.z), // 水平角度
-          phi: Math.acos(camera.position.y / Math.sqrt(camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2)) // 垂直角度
-        }
+        const controls = new OrbitControls(camera, renderer.domElement)
+        controls.enableDamping = true
+        controls.dampingFactor = 0.05
+        controls.enableZoom = true
+        controls.enablePan = true
+        controls.target.set(0, 0, 0)
+        controls.minDistance = 10
+        controls.maxDistance = 100
+        controlsRef.current = controls
 
-        const updateCameraFromSpherical = () => {
-          camera.position.x = sphericalPosition.radius * Math.sin(sphericalPosition.phi) * Math.sin(sphericalPosition.theta)
-          camera.position.y = sphericalPosition.radius * Math.cos(sphericalPosition.phi)
-          camera.position.z = sphericalPosition.radius * Math.sin(sphericalPosition.phi) * Math.cos(sphericalPosition.theta)
-          camera.lookAt(0, 0, 0)
-        }
-
-        const handleMouseDown = (event: MouseEvent) => {
-          event.preventDefault()
-          previousMousePosition = { x: event.clientX, y: event.clientY }
-          
-          if (event.button === 0) { // 左键 - 旋转
-            isRotating = true
-          } else if (event.button === 2) { // 右键 - 平移
-            isPanning = true
-          }
-        }
-
-        const handleMouseMove = (event: MouseEvent) => {
-          if (!isRotating && !isPanning) return
-          event.preventDefault()
-
-          const deltaMove = {
-            x: event.clientX - previousMousePosition.x,
-            y: event.clientY - previousMousePosition.y,
-          }
-
-          if (isRotating) {
-            // 左键旋转 - 使用球坐标系
-            const rotationSpeed = 0.005
-            sphericalPosition.theta += deltaMove.x * rotationSpeed
-            sphericalPosition.phi += deltaMove.y * rotationSpeed
-            
-            // 限制垂直旋转角度，避免翻转
-            sphericalPosition.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalPosition.phi))
-            
-            updateCameraFromSpherical()
-          } else if (isPanning) {
-            // 右键平移
-            const panSpeed = 0.02
-            const right = new THREE.Vector3()
-            const up = new THREE.Vector3()
-            
-            camera.getWorldDirection(right)
-            right.cross(camera.up).normalize()
-            up.copy(camera.up)
-            
-            const panVector = new THREE.Vector3()
-            panVector.addScaledVector(right, -deltaMove.x * panSpeed)
-            panVector.addScaledVector(up, deltaMove.y * panSpeed)
-            
-            camera.position.add(panVector)
-            
-            // 更新球坐标系以保持一致性
-            sphericalPosition.radius = Math.sqrt(camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2)
-          }
-
-          previousMousePosition = { x: event.clientX, y: event.clientY }
-        }
-
-        const handleMouseUp = (event: MouseEvent) => {
-          event.preventDefault()
-          isRotating = false
-          isPanning = false
-        }
-
-        const handleWheel = (event: WheelEvent) => {
-          event.preventDefault() // 阻止页面滚动
-          event.stopPropagation()
-          
-          const zoomSpeed = 0.1
-          const zoomFactor = event.deltaY > 0 ? 1 + zoomSpeed : 1 - zoomSpeed
-          
-          sphericalPosition.radius *= zoomFactor
-          sphericalPosition.radius = Math.max(5, Math.min(100, sphericalPosition.radius)) // 限制缩放范围
-          
-          updateCameraFromSpherical()
-        }
-
-        const handleContextMenu = (event: MouseEvent) => {
-          event.preventDefault() // 禁用右键菜单
-        }
-
-        // 添加鼠标离开处理
-        const handleMouseLeave = () => {
-          isRotating = false
-          isPanning = false
-        }
-
-        renderer.domElement.addEventListener("mousedown", handleMouseDown)
-        renderer.domElement.addEventListener("mousemove", handleMouseMove)
-        renderer.domElement.addEventListener("mouseup", handleMouseUp)
-        renderer.domElement.addEventListener("mouseleave", handleMouseLeave)
-        renderer.domElement.addEventListener("wheel", handleWheel, { passive: false })
-        renderer.domElement.addEventListener("contextmenu", handleContextMenu)
-
+        // Lighting setup
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
         scene.add(ambientLight)
 
@@ -174,12 +83,13 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
         directionalLight2.position.set(-50, -50, 50)
         scene.add(directionalLight2)
 
+        // Mount renderer
         mountRef.current.appendChild(renderer.domElement)
 
         const handleResize = () => {
           if (!mountRef.current) return
           const newWidth = mountRef.current.clientWidth
-          const newHeight = mountRef.current.clientHeight || 600
+          const newHeight = mountRef.current.clientHeight || 500
 
           camera.aspect = newWidth / newHeight
           camera.updateProjectionMatrix()
@@ -188,10 +98,13 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
 
         window.addEventListener("resize", handleResize)
 
-        await loadModels(scene)
+        // Load models
+        await loadModels(THREE, STLLoader, OBJLoader, scene)
 
+        // Animation loop
         const animate = () => {
           requestAnimationFrame(animate)
+          controls.update()
           renderer.render(scene, camera)
         }
         animate()
@@ -200,12 +113,6 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
 
         return () => {
           window.removeEventListener("resize", handleResize)
-          renderer.domElement.removeEventListener("mousedown", handleMouseDown)
-          renderer.domElement.removeEventListener("mousemove", handleMouseMove)
-          renderer.domElement.removeEventListener("mouseup", handleMouseUp)
-          renderer.domElement.removeEventListener("mouseleave", handleMouseLeave)
-          renderer.domElement.removeEventListener("wheel", handleWheel)
-          renderer.domElement.removeEventListener("contextmenu", handleContextMenu)
         }
       } catch (err) {
         console.error("Failed to initialize 3D viewer:", err)
@@ -214,59 +121,177 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
       }
     }
 
-    const loadModels = async (scene: any) => {
+    const loadModels = async (THREE: any, STLLoader: any, OBJLoader: any, scene: any) => {
       try {
+        const stlLoader = new STLLoader()
+        const objLoader = new OBJLoader()
+
+        // Load upper jaw model
         if (upperJawUrl) {
           try {
-            const upperJawModel = await loadModelFromUrl(upperJawUrl, 0x3b82f6, { x: 0, y: 0, z: 0 })
-            if (upperJawModel) {
-              scene.add(upperJawModel)
-              upperJawModelRef.current = upperJawModel
-              console.log("[v0] Loaded upper jaw model from file")
-            } else {
-              throw new Error("Failed to load upper jaw model")
-            }
-          } catch (error) {
-            console.log("[v0] Failed to load upper jaw file, using placeholder")
-            const upperJawModel = createPlaceholderUpperJaw()
+            const geometry = upperJawUrl.endsWith(".stl")
+              ? await new Promise((resolve, reject) => {
+                  stlLoader.load(upperJawUrl, resolve, undefined, reject)
+                })
+              : await new Promise((resolve, reject) => {
+                  objLoader.load(
+                    upperJawUrl,
+                    (obj) => {
+                      resolve(obj.children[0].geometry)
+                    },
+                    undefined,
+                    reject,
+                  )
+                })
+
+            const upperJawMaterial = new THREE.MeshPhongMaterial({
+              color: 0xf5f5dc, // Beige color for upper jaw
+              transparent: true,
+              opacity: 0.8,
+            })
+            const upperJawModel = new THREE.Mesh(geometry, upperJawMaterial)
+            upperJawModel.castShadow = true
+            upperJawModel.receiveShadow = true
+            upperJawModel.position.set(0, 0, 0)
             scene.add(upperJawModel)
             upperJawModelRef.current = upperJawModel
+            console.log("[v0] Successfully loaded upper jaw model from:", upperJawUrl)
+          } catch (error) {
+            console.error("[v0] Failed to load upper jaw model:", error)
+            const upperJawGeometry = new THREE.BoxGeometry(20, 6, 12)
+            const vertices = upperJawGeometry.attributes.position.array
+            for (let i = 0; i < vertices.length; i += 3) {
+              const x = vertices[i]
+              vertices[i + 1] += Math.sin(Math.abs(x) * 0.1) * 1.5
+            }
+            upperJawGeometry.attributes.position.needsUpdate = true
+            upperJawGeometry.computeVertexNormals()
+
+            const upperJawMaterial = new THREE.MeshPhongMaterial({
+              color: 0xf5f5dc,
+              transparent: true,
+              opacity: 0.8,
+            })
+            const upperJawModel = new THREE.Mesh(upperJawGeometry, upperJawMaterial)
+            upperJawModel.castShadow = true
+            upperJawModel.receiveShadow = true
+            upperJawModel.position.set(0, 0, 0)
+            scene.add(upperJawModel)
+            upperJawModelRef.current = upperJawModel
+            console.log("[v0] Created placeholder upper jaw model")
           }
         }
 
+        // Load lower jaw model
         if (lowerJawUrl) {
           try {
-            const lowerJawModel = await loadModelFromUrl(lowerJawUrl, 0x10b981, { x: 0, y: 0, z: 0 })
-            if (lowerJawModel) {
-              scene.add(lowerJawModel)
-              lowerJawModelRef.current = lowerJawModel
-              console.log("[v0] Loaded lower jaw model from file")
-            } else {
-              throw new Error("Failed to load lower jaw model")
-            }
-          } catch (error) {
-            console.log("[v0] Failed to load lower jaw file, using placeholder")
-            const lowerJawModel = createPlaceholderLowerJaw()
+            const geometry = lowerJawUrl.endsWith(".stl")
+              ? await new Promise((resolve, reject) => {
+                  stlLoader.load(lowerJawUrl, resolve, undefined, reject)
+                })
+              : await new Promise((resolve, reject) => {
+                  objLoader.load(
+                    lowerJawUrl,
+                    (obj) => {
+                      resolve(obj.children[0].geometry)
+                    },
+                    undefined,
+                    reject,
+                  )
+                })
+
+            const lowerJawMaterial = new THREE.MeshPhongMaterial({
+              color: 0xffe4e1, // Light pink color for lower jaw
+              transparent: true,
+              opacity: 0.8,
+            })
+            const lowerJawModel = new THREE.Mesh(geometry, lowerJawMaterial)
+            lowerJawModel.castShadow = true
+            lowerJawModel.receiveShadow = true
+            lowerJawModel.position.set(0, 0, 0)
             scene.add(lowerJawModel)
             lowerJawModelRef.current = lowerJawModel
+            console.log("[v0] Successfully loaded lower jaw model from:", lowerJawUrl)
+          } catch (error) {
+            console.error("[v0] Failed to load lower jaw model:", error)
+            const lowerJawGeometry = new THREE.BoxGeometry(18, 6, 11)
+            const vertices = lowerJawGeometry.attributes.position.array
+            for (let i = 0; i < vertices.length; i += 3) {
+              const x = vertices[i]
+              vertices[i + 1] -= Math.sin(Math.abs(x) * 0.1) * 1.2
+            }
+            lowerJawGeometry.attributes.position.needsUpdate = true
+            lowerJawGeometry.computeVertexNormals()
+
+            const lowerJawMaterial = new THREE.MeshPhongMaterial({
+              color: 0xffe4e1,
+              transparent: true,
+              opacity: 0.8,
+            })
+            const lowerJawModel = new THREE.Mesh(lowerJawGeometry, lowerJawMaterial)
+            lowerJawModel.castShadow = true
+            lowerJawModel.receiveShadow = true
+            lowerJawModel.position.set(0, 0, 0)
+            scene.add(lowerJawModel)
+            lowerJawModelRef.current = lowerJawModel
+            console.log("[v0] Created placeholder lower jaw model")
           }
         }
 
+        // Load restoration model
         if (restorationUrl) {
           try {
-            const restorationModel = await loadModelFromUrl(restorationUrl, 0xf59e0b, { x: 0, y: 0, z: 0 })
-            if (restorationModel) {
-              scene.add(restorationModel)
-              restorationModelRef.current = restorationModel
-              console.log("[v0] Loaded restoration model from file")
-            } else {
-              throw new Error("Failed to load restoration model")
-            }
-          } catch (error) {
-            console.log("[v0] Failed to load restoration file, using placeholder")
-            const restorationModel = createPlaceholderRestoration()
+            const geometry = restorationUrl.endsWith(".stl")
+              ? await new Promise((resolve, reject) => {
+                  stlLoader.load(restorationUrl, resolve, undefined, reject)
+                })
+              : await new Promise((resolve, reject) => {
+                  objLoader.load(
+                    restorationUrl,
+                    (obj) => {
+                      resolve(obj.children[0].geometry)
+                    },
+                    undefined,
+                    reject,
+                  )
+                })
+
+            const restorationMaterial = new THREE.MeshPhongMaterial({
+              color: 0x8b9dc3, // Blue color for restoration
+              transparent: true,
+              opacity: 0.9,
+            })
+            const restorationModel = new THREE.Mesh(geometry, restorationMaterial)
+            restorationModel.castShadow = true
+            restorationModel.receiveShadow = true
+            restorationModel.position.set(0, 0, 0) // Position on upper jaw
             scene.add(restorationModel)
             restorationModelRef.current = restorationModel
+            console.log("[v0] Successfully loaded restoration model from:", restorationUrl)
+          } catch (error) {
+            console.error("[v0] Failed to load restoration model:", error)
+            const restorationGeometry = new THREE.CylinderGeometry(2, 3, 6, 8)
+            const vertices = restorationGeometry.attributes.position.array
+            for (let i = 0; i < vertices.length; i += 3) {
+              vertices[i] += (Math.random() - 0.5) * 0.8
+              vertices[i + 1] += (Math.random() - 0.5) * 0.4
+              vertices[i + 2] += (Math.random() - 0.5) * 0.8
+            }
+            restorationGeometry.attributes.position.needsUpdate = true
+            restorationGeometry.computeVertexNormals()
+
+            const restorationMaterial = new THREE.MeshPhongMaterial({
+              color: 0x8b9dc3,
+              transparent: true,
+              opacity: 0.9,
+            })
+            const restorationModel = new THREE.Mesh(restorationGeometry, restorationMaterial)
+            restorationModel.castShadow = true
+            restorationModel.receiveShadow = true
+            restorationModel.position.set(0, 0, 0)
+            scene.add(restorationModel)
+            restorationModelRef.current = restorationModel
+            console.log("[v0] Created placeholder restoration model")
           }
         }
 
@@ -277,249 +302,9 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
       }
     }
 
-    const loadModelFromUrl = async (url: string, color: number, position: { x: number; y: number; z: number }) => {
-      try {
-        console.log("[v0] Attempting to load model from:", url)
-
-        const response = await fetch(url)
-        if (!response.ok) throw new Error(`HTTP ${response.status}`)
-
-        const arrayBuffer = await response.arrayBuffer()
-        console.log("[v0] Loaded file, size:", arrayBuffer.byteLength)
-
-        let geometry: THREE.BufferGeometry | null = null
-
-        try {
-          geometry = parseSTL(arrayBuffer)
-          console.log("[v0] Successfully parsed as STL file")
-        } catch (stlError) {
-          console.log("[v0] Not an STL file, trying OBJ format")
-
-          try {
-            const text = new TextDecoder().decode(arrayBuffer)
-            geometry = parseOBJ(text)
-            console.log("[v0] Successfully parsed as OBJ file")
-          } catch (objError) {
-            console.log("[v0] Could not parse as OBJ either, using placeholder")
-            const size = Math.max(5, Math.min(15, arrayBuffer.byteLength / 10000))
-            geometry = new THREE.BoxGeometry(size, size * 0.6, size * 0.8)
-          }
-        }
-
-        if (geometry) {
-          geometry.computeBoundingBox()
-          const box = geometry.boundingBox!
-          const center = box.getCenter(new THREE.Vector3())
-          geometry.translate(-center.x, -center.y, -center.z)
-
-          // const size = box.getSize(new THREE.Vector3())
-          // const maxSize = Math.max(size.x, size.y, size.z)
-          // const scale = 10 / maxSize
-          // geometry.scale(scale, scale, scale)
-
-          const material = new THREE.MeshPhongMaterial({
-            color: color,
-            transparent: true,
-            opacity: 0.8,
-          })
-
-          const mesh = new THREE.Mesh(geometry, material)
-          mesh.castShadow = true
-          mesh.receiveShadow = true
-          mesh.position.set(position.x, position.y, position.z)
-
-          return mesh
-        }
-
-        return null
-      } catch (error) {
-        console.error("[v0] Error loading model from URL:", error)
-        return null
-      }
-    }
-
-    const parseSTL = (arrayBuffer: ArrayBuffer): THREE.BufferGeometry => {
-      const dataView = new DataView(arrayBuffer)
-
-      if (arrayBuffer.byteLength > 84) {
-        const triangleCount = dataView.getUint32(80, true)
-        const expectedSize = 84 + triangleCount * 50
-
-        if (Math.abs(arrayBuffer.byteLength - expectedSize) < 100) {
-          const vertices: number[] = []
-          const normals: number[] = []
-
-          for (let i = 0; i < triangleCount; i++) {
-            const offset = 84 + i * 50
-
-            const nx = dataView.getFloat32(offset, true)
-            const ny = dataView.getFloat32(offset + 4, true)
-            const nz = dataView.getFloat32(offset + 8, true)
-
-            for (let j = 0; j < 3; j++) {
-              const vOffset = offset + 12 + j * 12
-              vertices.push(
-                dataView.getFloat32(vOffset, true),
-                dataView.getFloat32(vOffset + 4, true),
-                dataView.getFloat32(vOffset + 8, true),
-              )
-              normals.push(nx, ny, nz)
-            }
-          }
-
-          const geometry = new THREE.BufferGeometry()
-          geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3))
-          geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3))
-          return geometry
-        }
-      }
-
-      const text = new TextDecoder().decode(arrayBuffer)
-      if (text.includes("facet normal")) {
-        return parseASCIISTL(text)
-      }
-
-      throw new Error("Not a valid STL file")
-    }
-
-    const parseASCIISTL = (text: string): THREE.BufferGeometry => {
-      const vertices: number[] = []
-      const normals: number[] = []
-
-      const lines = text.split("\n")
-      let currentNormal = [0, 0, 0]
-
-      for (const line of lines) {
-        const trimmed = line.trim()
-
-        if (trimmed.startsWith("facet normal")) {
-          const parts = trimmed.split(/\s+/)
-          currentNormal = [Number.parseFloat(parts[2]), Number.parseFloat(parts[3]), Number.parseFloat(parts[4])]
-        } else if (trimmed.startsWith("vertex")) {
-          const parts = trimmed.split(/\s+/)
-          vertices.push(Number.parseFloat(parts[1]), Number.parseFloat(parts[2]), Number.parseFloat(parts[3]))
-          normals.push(currentNormal[0], currentNormal[1], currentNormal[2])
-        }
-      }
-
-      const geometry = new THREE.BufferGeometry()
-      geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3))
-      geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3))
-      return geometry
-    }
-
-    const parseOBJ = (text: string): THREE.BufferGeometry => {
-      const vertices: number[] = []
-      const faces: number[] = []
-      const objVertices: number[][] = []
-
-      const lines = text.split("\n")
-
-      for (const line of lines) {
-        const trimmed = line.trim()
-
-        if (trimmed.startsWith("v ")) {
-          const parts = trimmed.split(/\s+/)
-          objVertices.push([Number.parseFloat(parts[1]), Number.parseFloat(parts[2]), Number.parseFloat(parts[3])])
-        } else if (trimmed.startsWith("f ")) {
-          const parts = trimmed.split(/\s+/).slice(1)
-
-          if (parts.length >= 3) {
-            for (let i = 1; i < parts.length - 1; i++) {
-              const v1 = Number.parseInt(parts[0].split("/")[0]) - 1
-              const v2 = Number.parseInt(parts[i].split("/")[0]) - 1
-              const v3 = Number.parseInt(parts[i + 1].split("/")[0]) - 1
-
-              if (objVertices[v1] && objVertices[v2] && objVertices[v3]) {
-                vertices.push(...objVertices[v1], ...objVertices[v2], ...objVertices[v3])
-              }
-            }
-          }
-        }
-      }
-
-      if (vertices.length === 0) {
-        throw new Error("No valid vertices found in OBJ file")
-      }
-
-      const geometry = new THREE.BufferGeometry()
-      geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3))
-      geometry.computeVertexNormals()
-      return geometry
-    }
-
-    const createPlaceholderUpperJaw = () => {
-      const upperJawGeometry = new THREE.BoxGeometry(20, 6, 12)
-      const vertices = upperJawGeometry.attributes.position.array
-      for (let i = 0; i < vertices.length; i += 3) {
-        const x = vertices[i]
-        vertices[i + 1] += Math.sin(Math.abs(x) * 0.1) * 1.5
-      }
-      upperJawGeometry.attributes.position.needsUpdate = true
-      upperJawGeometry.computeVertexNormals()
-
-      const upperJawMaterial = new THREE.MeshPhongMaterial({
-        color: 0x3b82f6,
-        transparent: true,
-        opacity: 0.85,
-      })
-      const upperJawModel = new THREE.Mesh(upperJawGeometry, upperJawMaterial)
-      upperJawModel.castShadow = true
-      upperJawModel.receiveShadow = true
-      upperJawModel.position.set(0, 0, 0)
-      console.log("[v0] Created placeholder upper jaw model")
-      return upperJawModel
-    }
-
-    const createPlaceholderLowerJaw = () => {
-      const lowerJawGeometry = new THREE.BoxGeometry(18, 6, 11)
-      const vertices = lowerJawGeometry.attributes.position.array
-      for (let i = 0; i < vertices.length; i += 3) {
-        const x = vertices[i]
-        vertices[i + 1] -= Math.sin(Math.abs(x) * 0.1) * 1.2
-      }
-      lowerJawGeometry.attributes.position.needsUpdate = true
-      lowerJawGeometry.computeVertexNormals()
-
-      const lowerJawMaterial = new THREE.MeshPhongMaterial({
-        color: 0x10b981,
-        transparent: true,
-        opacity: 0.85,
-      })
-      const lowerJawModel = new THREE.Mesh(lowerJawGeometry, lowerJawMaterial)
-      lowerJawModel.castShadow = true
-      lowerJawModel.receiveShadow = true
-      lowerJawModel.position.set(0, 0, 0)
-      console.log("[v0] Created placeholder lower jaw model")
-      return lowerJawModel
-    }
-
-    const createPlaceholderRestoration = () => {
-      const restorationGeometry = new THREE.CylinderGeometry(2, 3, 6, 8)
-      const vertices = restorationGeometry.attributes.position.array
-      for (let i = 0; i < vertices.length; i += 3) {
-        vertices[i] += (Math.random() - 0.5) * 0.8
-        vertices[i + 1] += (Math.random() - 0.5) * 0.4
-        vertices[i + 2] += (Math.random() - 0.5) * 0.8
-      }
-      restorationGeometry.attributes.position.needsUpdate = true
-      restorationGeometry.computeVertexNormals()
-
-      const restorationMaterial = new THREE.MeshPhongMaterial({
-        color: 0xf59e0b,
-        transparent: true,
-        opacity: 0.9,
-      })
-      const restorationModel = new THREE.Mesh(restorationGeometry, restorationMaterial)
-      restorationModel.castShadow = true
-      restorationModel.receiveShadow = true
-      restorationModel.position.set(0, 0, 0)
-      console.log("[v0] Created placeholder restoration model")
-      return restorationModel
-    }
-
     initThreeJS()
 
+    // Cleanup
     return () => {
       if (mountRef.current && rendererRef.current) {
         mountRef.current.removeChild(rendererRef.current.domElement)
@@ -549,42 +334,23 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
   }, [showRestoration])
 
   const handleResetView = () => {
-    if (cameraRef.current) {
+    if (controlsRef.current && cameraRef.current) {
       cameraRef.current.position.set(30, 20, 30)
       cameraRef.current.lookAt(0, 0, 0)
-      
-      // 重置球坐标系状态
-      const sphericalPosition = {
-        radius: Math.sqrt(30 ** 2 + 20 ** 2 + 30 ** 2),
-        theta: Math.atan2(30, 30),
-        phi: Math.acos(20 / Math.sqrt(30 ** 2 + 20 ** 2 + 30 ** 2))
-      }
+      controlsRef.current.target.set(0, 0, 0)
+      controlsRef.current.update()
     }
   }
 
   const handleZoomIn = () => {
     if (cameraRef.current) {
-      // 使用球坐标系进行缩放
-      const currentRadius = Math.sqrt(
-        cameraRef.current.position.x ** 2 + 
-        cameraRef.current.position.y ** 2 + 
-        cameraRef.current.position.z ** 2
-      )
-      const newRadius = Math.max(5, currentRadius * 0.9)
-      cameraRef.current.position.multiplyScalar(newRadius / currentRadius)
+      cameraRef.current.position.multiplyScalar(0.9)
     }
   }
 
   const handleZoomOut = () => {
     if (cameraRef.current) {
-      // 使用球坐标系进行缩放
-      const currentRadius = Math.sqrt(
-        cameraRef.current.position.x ** 2 + 
-        cameraRef.current.position.y ** 2 + 
-        cameraRef.current.position.z ** 2
-      )
-      const newRadius = Math.min(100, currentRadius * 1.1)
-      cameraRef.current.position.multiplyScalar(newRadius / currentRadius)
+      cameraRef.current.position.multiplyScalar(1.1)
     }
   }
 
@@ -611,7 +377,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
               variant="outline"
               size="sm"
               onClick={() => setShowUpperJaw(!showUpperJaw)}
-              className={showUpperJaw ? "bg-gray-100 text-gray-700" : ""}
+              className={showUpperJaw ? "bg-yellow-100 text-yellow-700" : ""}
             >
               {showUpperJaw ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               上颌
@@ -620,7 +386,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
               variant="outline"
               size="sm"
               onClick={() => setShowLowerJaw(!showLowerJaw)}
-              className={showLowerJaw ? "bg-gray-100 text-gray-700" : ""}
+              className={showLowerJaw ? "bg-pink-100 text-pink-700" : ""}
             >
               {showLowerJaw ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               下颌
@@ -629,7 +395,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
               variant="outline"
               size="sm"
               onClick={() => setShowRestoration(!showRestoration)}
-              className={showRestoration ? "bg-gray-100 text-gray-700" : ""}
+              className={showRestoration ? "bg-blue-100 text-blue-700" : ""}
             >
               {showRestoration ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               修复体
@@ -641,8 +407,8 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
         <div className="relative">
           <div
             ref={mountRef}
-            className="w-full h-[600px] rounded-lg overflow-hidden bg-gray-50"
-            style={{ minHeight: "600px" }}
+            className="w-full h-[500px] rounded-lg overflow-hidden bg-gray-50"
+            style={{ minHeight: "500px" }}
           />
 
           {isLoading && (
@@ -662,15 +428,15 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
             </p>
             <div className="flex items-center space-x-4 mt-2">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-500 rounded shadow-sm"></div>
+                <div className="w-3 h-3 bg-yellow-300 rounded"></div>
                 <span>上颌模型</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-emerald-500 rounded shadow-sm"></div>
+                <div className="w-3 h-3 bg-pink-300 rounded"></div>
                 <span>下颌模型</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-amber-500 rounded shadow-sm"></div>
+                <div className="w-3 h-3 bg-blue-300 rounded"></div>
                 <span>修复体模型</span>
               </div>
             </div>

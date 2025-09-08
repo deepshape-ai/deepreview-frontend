@@ -22,23 +22,35 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
   }
 
   const getScoreColor = (score: number, maxScore: number) => {
-    return "text-black"
+    const percentage = (score / maxScore) * 100
+    if (percentage >= 90) return "text-green-600"
+    if (percentage >= 80) return "text-blue-600"
+    if (percentage >= 70) return "text-yellow-600"
+    return "text-red-600"
   }
 
   const getProgressColor = (score: number, maxScore: number) => {
-    return "bg-black"
+    const percentage = (score / maxScore) * 100
+    if (percentage >= 90) return "bg-green-500"
+    if (percentage >= 80) return "bg-blue-500"
+    if (percentage >= 70) return "bg-yellow-500"
+    return "bg-red-500"
   }
 
   const getGradientBackground = (score: number, maxScore: number) => {
-    return "bg-white border-black/20"
+    const percentage = (score / maxScore) * 100
+    if (percentage >= 90) return "bg-gradient-to-r from-green-50 to-emerald-50 border-green-200"
+    if (percentage >= 80) return "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200"
+    if (percentage >= 70) return "bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200"
+    return "bg-gradient-to-r from-red-50 to-rose-50 border-red-200"
   }
 
   const getDimensionVisualContent = (dimension: string, score: number) => {
     switch (dimension) {
-      case "边缘密合性":
+      case "Marginal Fit":
         return {
           type: "technical",
-          icon: <Ruler className="h-4 w-4" style={{ color: "var(--tech-blue)" }} />,
+          icon: <Ruler className="h-4 w-4" />,
           title: "技术参数",
           content: (
             <div className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-lg p-4 border">
@@ -69,7 +81,7 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                   <div className="flex justify-between items-center p-2 bg-white rounded border">
                     <span className="text-muted-foreground font-medium">密封质量：</span>
                     <span
-                      className={`font-semibold ${score >= 18 ? "text-gray-900" : score >= 16 ? "text-gray-600" : "text-gray-400"}`}
+                      className={`font-semibold ${score >= 18 ? "text-green-600" : score >= 16 ? "text-yellow-600" : "text-red-600"}`}
                     >
                       {score >= 18 ? "优秀" : score >= 16 ? "良好" : "一般"}
                     </span>
@@ -79,10 +91,10 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
             </div>
           ),
         }
-      case "轴面外形":
+      case "Axial Contour":
         return {
           type: "image",
-          icon: <Eye className="h-4 w-4" style={{ color: "var(--tech-green)" }} />,
+          icon: <Eye className="h-4 w-4" />,
           title: "视觉分析",
           content: (
             <div className="bg-gradient-to-br from-white to-slate-50 rounded-lg p-4 border shadow-sm">
@@ -93,16 +105,16 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                 height={200}
                 className="rounded-lg border-2 border-slate-200 w-full object-cover shadow-sm"
               />
-              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-gray-400">
+              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-blue-300">
                 显示轴面轮廓和萌出轮廓的特写视图
               </p>
             </div>
           ),
         }
-      case "邻接触关系":
+      case "Proximal Contact":
         return {
           type: "image",
-          icon: <Eye className="h-4 w-4" style={{ color: "var(--tech-purple)" }} />,
+          icon: <Eye className="h-4 w-4" />,
           title: "接触点分析",
           content: (
             <div className="bg-gradient-to-br from-white to-slate-50 rounded-lg p-4 border shadow-sm">
@@ -113,16 +125,16 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                 height={200}
                 className="rounded-lg border-2 border-slate-200 w-full object-cover shadow-sm"
               />
-              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-gray-400">
+              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-green-300">
                 邻面接触关系和紧密度的详细视图
               </p>
             </div>
           ),
         }
-      case "咬合关系":
+      case "Occlusal Relationship":
         return {
           type: "image",
-          icon: <Eye className="h-4 w-4" style={{ color: "var(--tech-orange)" }} />,
+          icon: <Eye className="h-4 w-4" />,
           title: "咬合关系",
           content: (
             <div className="bg-gradient-to-br from-white to-slate-50 rounded-lg p-4 border shadow-sm">
@@ -133,16 +145,16 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                 height={200}
                 className="rounded-lg border-2 border-slate-200 w-full object-cover shadow-sm"
               />
-              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-gray-400">
+              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-purple-300">
                 咬合面显示中心止点和侧方运动
               </p>
             </div>
           ),
         }
-      case "结构美学":
+      case "Structural Aesthetics":
         return {
           type: "image",
-          icon: <Eye className="h-4 w-4" style={{ color: "var(--tech-cyan)" }} />,
+          icon: <Eye className="h-4 w-4" />,
           title: "表面细节分析",
           content: (
             <div className="bg-gradient-to-br from-white to-slate-50 rounded-lg p-4 border shadow-sm">
@@ -153,7 +165,7 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                 height={200}
                 className="rounded-lg border-2 border-slate-200 w-full object-cover shadow-sm"
               />
-              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-gray-400">
+              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-orange-300">
                 解剖再现显示牙尖、窝沟和表面纹理
               </p>
             </div>
@@ -174,25 +186,27 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
         return (
           <Collapsible key={score.dimension} open={isOpen} onOpenChange={() => toggleItem(score.dimension)}>
             <CollapsibleTrigger className="w-full">
-              <div className="flex items-center justify-between p-6 border-2 border-slate-200 rounded-xl hover:shadow-lg transition-all duration-200 bg-gradient-to-r from-slate-50 via-white to-slate-50">
+              <div
+                className={`flex items-center justify-between p-6 border-2 rounded-xl hover:shadow-md transition-all duration-200 ${getGradientBackground(score.score, score.maxScore)}`}
+              >
                 <div className="flex items-center space-x-4">
-                  <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-200 rounded-full shadow-sm">
+                  <div className="p-2 bg-white rounded-full shadow-sm">
                     {isOpen ? (
-                      <ChevronDown className="h-5 w-5 text-indigo-700" />
+                      <ChevronDown className="h-5 w-5 text-slate-600" />
                     ) : (
-                      <ChevronRight className="h-5 w-5 text-indigo-700" />
+                      <ChevronRight className="h-5 w-5 text-slate-600" />
                     )}
                   </div>
                   <div className="text-left">
                     <h4 className="font-bold text-lg text-slate-800">{score.dimension}</h4>
                     <div className="flex items-center space-x-3 mt-2">
                       <Progress value={percentage} className="w-32 h-3" />
-                      <span className="text-sm font-semibold text-slate-700">{percentage.toFixed(0)}%</span>
+                      <span className="text-sm font-semibold text-slate-600">{percentage.toFixed(0)}%</span>
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-slate-800">
+                  <div className={`text-2xl font-bold ${getScoreColor(score.score, score.maxScore)}`}>
                     {score.score}/{score.maxScore}
                   </div>
                 </div>
@@ -204,18 +218,21 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                 <div className="grid lg:grid-cols-2 gap-8">
                   {/* Left Column - Criteria and Feedback */}
                   <div className="space-y-6">
-                    <div className="bg-white border-l-4 border-black rounded-r-lg p-4 border border-black/20">
-                      <h5 className="font-bold text-base mb-3 text-black">评分标准</h5>
-                      <p className="text-sm text-black leading-relaxed">{score.criteria}</p>
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-400 rounded-r-lg p-4">
+                      <h5 className="font-bold text-base mb-3 text-blue-800">评分标准</h5>
+                      <p className="text-sm text-slate-700 leading-relaxed">{score.criteria}</p>
                     </div>
 
-                    <div className="bg-white border-l-4 border-black/60 rounded-r-lg p-4 border border-black/20">
-                      <h5 className="font-bold text-base mb-3 text-black">详细反馈</h5>
-                      <p className="text-sm leading-relaxed text-black">{score.reason}</p>
+                    <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-l-4 border-slate-400 rounded-r-lg p-4">
+                      <h5 className="font-bold text-base mb-3 text-slate-800">详细反馈</h5>
+                      <p className="text-sm leading-relaxed text-slate-700">{score.reason}</p>
                     </div>
 
                     <div className="flex justify-start">
-                      <Badge variant="outline" className="text-sm px-4 py-2 font-semibold border-black/30 text-black">
+                      <Badge
+                        variant={percentage >= 85 ? "default" : percentage >= 70 ? "secondary" : "outline"}
+                        className="text-sm px-4 py-2 font-semibold"
+                      >
                         {percentage >= 85 ? "优秀表现" : percentage >= 70 ? "良好表现" : "需要改进"}
                       </Badge>
                     </div>
@@ -223,10 +240,10 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
 
                   {/* Right Column - Visual Content */}
                   {visualContent && (
-                    <div className="bg-white border-2 border-black/20 rounded-xl p-6 shadow-sm">
+                    <div className="bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200 rounded-xl p-6 shadow-sm">
                       <div className="flex items-center space-x-3 mb-4">
-                        <div className="p-2 bg-white border border-black/20 rounded-full">{visualContent.icon}</div>
-                        <h5 className="font-bold text-base text-black">{visualContent.title}</h5>
+                        <div className="p-2 bg-slate-100 rounded-full">{visualContent.icon}</div>
+                        <h5 className="font-bold text-base text-slate-800">{visualContent.title}</h5>
                       </div>
                       {visualContent.content}
                     </div>

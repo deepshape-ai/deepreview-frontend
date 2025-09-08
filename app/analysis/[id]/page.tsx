@@ -30,7 +30,7 @@ export default function AnalysisDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
         <Header />
         <main className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center h-64">
@@ -43,7 +43,7 @@ export default function AnalysisDetailPage() {
 
   if (!analysis) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
         <Header />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
@@ -57,10 +57,10 @@ export default function AnalysisDetailPage() {
   }
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return "text-gray-900"
-    if (score >= 80) return "text-gray-700"
-    if (score >= 70) return "text-gray-500"
-    return "text-gray-400"
+    if (score >= 90) return "text-green-600"
+    if (score >= 80) return "text-blue-600"
+    if (score >= 70) return "text-yellow-600"
+    return "text-red-600"
   }
 
   const getScoreBadgeVariant = (score: number) => {
@@ -71,23 +71,10 @@ export default function AnalysisDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white relative">
-      {/* Subtle decorative gradient overlay */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-slate-50/50 via-slate-50/20 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-gray-50/30 to-transparent"></div>
-        <div className="absolute top-20 left-0 w-96 h-96 bg-gradient-radial from-blue-50/20 via-transparent to-transparent rounded-full blur-3xl transform -translate-x-48"></div>
-        <div className="absolute top-40 right-0 w-80 h-80 bg-gradient-radial from-purple-50/15 via-transparent to-transparent rounded-full blur-3xl transform translate-x-40"></div>
-      </div>
-      
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <Header />
 
-      <main className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
-        {/* Additional decorative elements for main content */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-gradient-radial from-emerald-50/10 via-transparent to-transparent rounded-full blur-2xl"></div>
-          <div className="absolute bottom-1/4 right-1/3 w-72 h-72 bg-gradient-radial from-indigo-50/8 via-transparent to-transparent rounded-full blur-2xl"></div>
-        </div>
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-6">
           <Button
             variant="ghost"
@@ -118,81 +105,70 @@ export default function AnalysisDetailPage() {
         {/* Overall Score and 3D Model Viewer in same row */}
         <div className="grid lg:grid-cols-2 gap-6 mb-6 items-stretch">
           {/* Overall Score Card */}
-          <Card className="relative transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border-0 shadow-xl overflow-hidden p-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
-            {/* Animated background pattern */}
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500"></div>
-            <div className="absolute inset-0 opacity-20" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-            }}></div>
-            
-            <CardContent className="relative z-10 p-0 h-full flex flex-col">
-              {/* Score Display Section */}
-              <div className="relative text-white p-8 border-b border-white/20">
-                <div className="text-center">
-                  <div className="mb-4">
-                    <div className="text-6xl font-black mb-3 bg-gradient-to-r from-white to-yellow-200 bg-clip-text text-transparent drop-shadow-lg">
-                      {analysis.overallScore}
-                    </div>
-                    <div className="text-xl mb-4 text-white/90 font-semibold">/100 分</div>
-                    <div className="inline-flex px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
-                      <span className="text-white font-bold text-sm tracking-wide">
-                        {analysis.overallScore >= 90
-                          ? "🏆 卓越表现"
-                          : analysis.overallScore >= 80
-                            ? "⭐ 优良水平"
-                            : analysis.overallScore >= 70
-                              ? "✨ 良好表现"
-                              : "🔥 待提升"}
-                      </span>
-                    </div>
+          <Card className="transition-all duration-300 hover:shadow-xl border-0 shadow-lg overflow-hidden p-0">
+            <CardContent className="p-0 h-full flex flex-col">
+              {/* Score Display Section with softer gradient */}
+              <div className="relative bg-gradient-to-br from-blue-500/90 via-blue-600/95 to-indigo-700/90 text-white p-6">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                <div className="relative z-10">
+                  <div className="text-center mb-4">
+                    <div className="text-5xl font-bold mb-2 drop-shadow-sm">{analysis.overallScore}</div>
+                    <div className="text-lg opacity-90 mb-3">/100 分</div>
+                    <Badge
+                      variant="secondary"
+                      className="bg-white/25 text-white border-white/20 backdrop-blur-sm px-3 py-1 text-sm font-medium shadow-sm"
+                    >
+                      {analysis.overallScore >= 90
+                        ? "卓越表现"
+                        : analysis.overallScore >= 80
+                          ? "优良水平"
+                          : analysis.overallScore >= 70
+                            ? "良好表现"
+                            : "待提升"}
+                    </Badge>
                   </div>
                 </div>
+                <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-b from-transparent via-blue-500/20 to-blue-50/40"></div>
               </div>
 
-              {/* Summary Section */}
-              <div className="flex-1 p-6 bg-white/95 backdrop-blur-sm">
+              {/* Summary Section with extended gradient transition */}
+              <div className="flex-1 p-6 bg-gradient-to-b from-blue-50/40 via-blue-50/20 to-white">
                 <div className="mb-6">
-                  <h3 className="font-bold text-xl mb-4 flex items-center text-slate-800">
-                    <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mr-3">
-                      <Trophy className="h-5 w-5 text-white" />
-                    </div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center text-slate-800">
+                    <Trophy className="h-5 w-5 mr-2 text-amber-500" />
                     综合评估报告
                   </h3>
-                  <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl p-5 border border-slate-200 shadow-sm">
-                    <p className="text-slate-700 leading-relaxed text-pretty">{analysis.summary}</p>
+                  <div className="bg-gradient-to-r from-slate-50/80 to-blue-50/40 rounded-xl p-4 border border-slate-100/50 shadow-sm">
+                    <p className="text-slate-700 leading-relaxed text-pretty text-sm">{analysis.summary}</p>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h4 className="font-bold text-slate-800 mb-4 flex items-center">
-                    <div className="w-1 h-6 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full mr-3"></div>
-                    各维度得分详情
-                  </h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {analysis.detailedScores.map((score, index) => {
-                      const colors = [
-                        'from-blue-500 to-blue-600',
-                        'from-emerald-500 to-emerald-600', 
-                        'from-purple-500 to-purple-600',
-                        'from-amber-500 to-amber-600',
-                        'from-rose-500 to-rose-600'
-                      ];
-                      const colorClass = colors[index % colors.length];
-                      
-                      return (
-                        <div
-                          key={score.dimension}
-                          className="flex flex-col p-4 bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 hover:shadow-sm transition-all duration-200 hover:scale-[1.02]"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${colorClass} shadow-sm`}></div>
-                            <div className="text-sm font-bold text-slate-700">{score.score}/20</div>
-                          </div>
-                          <span className="font-semibold text-slate-800 text-sm leading-tight mb-1">{score.dimension}</span>
-                          <div className="text-xs text-slate-500 font-medium">{Math.round((score.score / 20) * 100)}%</div>
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-slate-800 text-sm mb-3">各维度得分详情</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    {analysis.detailedScores.map((score, index) => (
+                      <div
+                        key={score.dimension}
+                        className="flex flex-col p-3 bg-gradient-to-br from-white to-slate-50/30 rounded-lg border border-slate-100/50 hover:shadow-sm transition-all"
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              score.score >= 18
+                                ? "bg-green-500"
+                                : score.score >= 15
+                                  ? "bg-blue-500"
+                                  : score.score >= 12
+                                    ? "bg-yellow-500"
+                                    : "bg-red-500"
+                            }`}
+                          ></div>
+                          <div className={`text-xs font-bold ${getScoreColor(score.score)}`}>{score.score}/20</div>
                         </div>
-                      );
-                    })}
+                        <span className="font-medium text-slate-700 text-xs leading-tight">{score.dimension}</span>
+                        <div className="text-xs text-slate-500 mt-1">{Math.round((score.score / 20) * 100)}%</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -210,10 +186,12 @@ export default function AnalysisDetailPage() {
           </div>
         </div>
 
-        <Card className="bg-white/95 backdrop-blur-sm border-2 border-black/15 shadow-lg relative z-10">
+        <Card className="bg-gradient-to-br from-white to-slate-50/30">
           <CardHeader className="pb-4">
-            <CardTitle className="text-xl text-black">详细分析与视觉评估</CardTitle>
-            <p className="text-sm text-gray-600">包含技术参数和视觉分析的综合评估</p>
+            <CardTitle className="text-xl bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
+              详细分析与视觉评估
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">包含技术参数和视觉分析的综合评估</p>
           </CardHeader>
           <CardContent className="pt-0">
             <ScoreBreakdown scores={analysis.detailedScores} />

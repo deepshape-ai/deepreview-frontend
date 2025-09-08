@@ -13,10 +13,10 @@ interface AnalysisHistoryCardProps {
 
 export function AnalysisHistoryCard({ analysis, onClick }: AnalysisHistoryCardProps) {
   const getScoreColor = (score: number) => {
-    if (score >= 90) return "text-gray-900"
-    if (score >= 80) return "text-gray-700"
-    if (score >= 70) return "text-gray-500"
-    return "text-gray-400"
+    if (score >= 90) return "text-green-600"
+    if (score >= 80) return "text-blue-600"
+    if (score >= 70) return "text-yellow-600"
+    return "text-red-600"
   }
 
   const getScoreBadgeVariant = (score: number) => {
@@ -28,23 +28,21 @@ export function AnalysisHistoryCard({ analysis, onClick }: AnalysisHistoryCardPr
 
   const getDimensionColor = (score: number, maxScore: number) => {
     const percentage = (score / maxScore) * 100
-    if (percentage >= 85) return "bg-gray-800"
-    if (percentage >= 70) return "bg-gray-600"
-    if (percentage >= 60) return "bg-gray-400"
-    return "bg-gray-300"
+    if (percentage >= 85) return "bg-green-500"
+    if (percentage >= 70) return "bg-blue-500"
+    if (percentage >= 60) return "bg-yellow-500"
+    return "bg-red-500"
   }
 
   return (
-    <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.005] bg-gradient-to-r from-slate-50 via-white to-blue-50/30 border-slate-200 hover:border-blue-300 shadow-md" onClick={onClick}>
+    <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02]" onClick={onClick}>
       <CardContent className="p-4 sm:p-6">
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
               <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 text-sm text-slate-600">
-                  <div className="p-1 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full">
-                    <Calendar className="h-3 w-3 text-white" />
-                  </div>
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{new Date(analysis.analysisDate).toLocaleDateString()}</span>
                 </div>
                 <div className="text-sm text-muted-foreground hidden sm:block">
@@ -98,9 +96,7 @@ export function AnalysisHistoryCard({ analysis, onClick }: AnalysisHistoryCardPr
           </div>
 
           <div className="ml-4 flex-shrink-0">
-            <div className="p-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full">
-              <ChevronRight className="h-4 w-4 text-white" />
-            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </div>
         </div>
       </CardContent>

@@ -12,11 +12,11 @@ export function SimpleModelViewer({ modelUrl, className, title }: SimpleModelVie
   return (
     <Card className={className}>
       <CardContent className="p-4">
-        <div className="w-full h-48 bg-white rounded-lg flex items-center justify-center border-2 border-dashed border-black/30">
+        <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-amber-50 rounded-lg flex items-center justify-center border-2 border-dashed border-muted-foreground/20">
           <div className="text-center">
-            <div className="w-16 h-16 bg-white border border-black/20 rounded-full flex items-center justify-center mx-auto mb-2">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
               <svg
-                className="w-8 h-8 text-black"
+                className="w-8 h-8 text-primary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -30,8 +30,8 @@ export function SimpleModelViewer({ modelUrl, className, title }: SimpleModelVie
                 />
               </svg>
             </div>
-            <p className="text-sm font-medium text-black">{title || "3D Model"}</p>
-            <p className="text-xs text-gray-600">Interactive viewer</p>
+            <p className="text-sm font-medium">{title || "3D Model"}</p>
+            <p className="text-xs text-muted-foreground">Interactive viewer</p>
           </div>
         </div>
       </CardContent>
