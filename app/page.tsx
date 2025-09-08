@@ -62,16 +62,55 @@ export default function UploadPage() {
     <div className="min-h-screen bg-white">
       <Header />
 
-      <main className="container mx-auto px-4 py-8 sm:py-12">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance text-foreground">
-              AI驱动的口腔修复体分析系统
-            </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto text-pretty leading-relaxed">
-              上传上下颌及修复体模型获得AI驱动的专业分析和评分
-            </p>
+      {/* Hero Section with Enhanced Gradient Background */}
+      <div className="relative overflow-hidden">
+        {/* Improved gradient background with smoother transition */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-700 via-slate-500 via-slate-300 to-gray-100"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800/80 via-slate-600/60 via-slate-400/40 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-slate-700/20 via-slate-500/10 to-white/20"></div>
+        
+        {/* Grid pattern overlay similar to landing page */}
+        <div className="absolute inset-0 opacity-[0.05]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='%23ffffff' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)' /%3E%3C/svg%3E")`
+        }}></div>
+        
+        {/* Additional decorative grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='smallgrid' width='20' height='20' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 20 0 L 0 0 0 20' fill='none' stroke='%23ffffff' stroke-width='0.5'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23smallgrid)' /%3E%3C/svg%3E")`
+        }}></div>
+        
+        {/* Subtle animated overlay for depth */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-600/5 to-slate-400/10 animate-pulse" style={{
+          animationDuration: '6s'
+        }}></div>
+
+        <main className="relative container mx-auto px-4 py-20 sm:py-32">
+          <div className="max-w-6xl mx-auto space-y-16">
+            <div className="text-center space-y-8 pt-12 pb-20">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-balance leading-tight">
+                <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent drop-shadow-2xl">
+                  AI驱动的口腔修复体分析系统
+                </span>
+              </h1>
+              <div className="max-w-4xl mx-auto space-y-6">
+                <p className="text-lg sm:text-xl text-gray-300 text-pretty leading-relaxed">
+                  上传上下颌及修复体模型获得AI驱动的专业分析和评分
+                </p>
+                <div className="h-8"></div>
+              </div>
+            </div>
           </div>
+        </main>
+        
+        {/* Improved bottom fade with reduced white concentration */}
+        <div className="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-white/95 via-white/60 via-white/30 via-white/15 via-white/5 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-white/98 via-white/40 via-white/15 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white/99 via-white/80 to-transparent"></div>
+      </div>
+
+      {/* Main Content Area - now with white background */}
+      <div className="container mx-auto px-4 py-8 sm:py-12 bg-white relative z-10">
+        <div className="max-w-6xl mx-auto space-y-16">
 
           <div className="space-y-8">
             <div className="bg-white rounded-lg p-8 border border-black/20">
@@ -161,23 +200,23 @@ export default function UploadPage() {
               <div className="mt-6 flex justify-center">
                 <div className="flex items-center space-x-4 text-sm">
                   <div
-                    className={`flex items-center space-x-2 ${upperJawFile && lowerJawFile ? "text-green-600" : "text-muted-foreground"}`}
+                    className={`flex items-center space-x-2 ${upperJawFile && lowerJawFile ? "text-emerald-700" : "text-muted-foreground"}`}
                   >
                     <div
-                      className={`w-3 h-3 rounded-full ${upperJawFile && lowerJawFile ? "bg-green-600" : "bg-muted"}`}
+                      className={`w-3 h-3 rounded-full ${upperJawFile && lowerJawFile ? "bg-emerald-500 shadow-sm" : "bg-muted"}`}
                     />
                     <span>颌骨模型</span>
                   </div>
                   <div
-                    className={`flex items-center space-x-2 ${selectedToothPosition ? "text-green-600" : "text-muted-foreground"}`}
+                    className={`flex items-center space-x-2 ${selectedToothPosition ? "text-emerald-700" : "text-muted-foreground"}`}
                   >
-                    <div className={`w-3 h-3 rounded-full ${selectedToothPosition ? "bg-green-600" : "bg-muted"}`} />
+                    <div className={`w-3 h-3 rounded-full ${selectedToothPosition ? "bg-emerald-500 shadow-sm" : "bg-muted"}`} />
                     <span>牙齿位置</span>
                   </div>
                   <div
-                    className={`flex items-center space-x-2 ${restorationFile ? "text-green-600" : "text-muted-foreground"}`}
+                    className={`flex items-center space-x-2 ${restorationFile ? "text-emerald-700" : "text-muted-foreground"}`}
                   >
-                    <div className={`w-3 h-3 rounded-full ${restorationFile ? "bg-green-600" : "bg-muted"}`} />
+                    <div className={`w-3 h-3 rounded-full ${restorationFile ? "bg-emerald-500 shadow-sm" : "bg-muted"}`} />
                     <span>修复体模型</span>
                   </div>
                 </div>
@@ -191,7 +230,7 @@ export default function UploadPage() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }
@@ -243,12 +282,7 @@ function UploadZone({ title, description, file, onFileUpload }: UploadZoneProps)
     console.log("[v0] Replace button clicked")
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
-      setTimeout(() => {
-        const label = document.querySelector(`label[for="${inputId}"]`) as HTMLLabelElement
-        if (label) {
-          label.click()
-        }
-      }, 10)
+      fileInputRef.current.click()
     }
   }
 
@@ -264,9 +298,9 @@ function UploadZone({ title, description, file, onFileUpload }: UploadZoneProps)
       <div
         className={`rounded-lg p-6 text-center transition-all duration-300 ${
           isDragOver
-            ? "bg-blue-50 border-2 border-blue-300"
+            ? "bg-gray-50 border-2 border-gray-400"
             : file
-              ? "bg-green-50 border border-green-300"
+              ? "bg-gray-100 border border-gray-400"
               : "bg-gray-50 border border-dashed border-gray-300"
         }`}
         onDrop={handleDrop}
@@ -275,16 +309,16 @@ function UploadZone({ title, description, file, onFileUpload }: UploadZoneProps)
       >
         {file ? (
           <div className="space-y-3">
-            <CheckCircle className="h-12 w-12 mx-auto text-green-600" />
+            <CheckCircle className="h-12 w-12 mx-auto text-gray-900" />
             <div>
-              <p className="font-semibold text-green-800">{file.file.name}</p>
-              <p className="text-sm text-green-600">{(file.file.size / 1024 / 1024).toFixed(2)} MB</p>
+              <p className="font-semibold text-gray-900">{file.file.name}</p>
+              <p className="text-sm text-gray-600">{(file.file.size / 1024 / 1024).toFixed(2)} MB</p>
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={handleReplaceClick}
-              className="border-green-300 text-green-700 hover:bg-green-100 bg-white/80"
+              className="border-gray-400 text-gray-700 hover:bg-gray-100 bg-white/80"
             >
               替换文件
             </Button>
@@ -293,7 +327,7 @@ function UploadZone({ title, description, file, onFileUpload }: UploadZoneProps)
           <div className="space-y-4">
             <Upload
               className={`h-12 w-12 mx-auto transition-all duration-300 ${
-                isDragOver ? "text-blue-600 scale-110" : "text-slate-400"
+                isDragOver ? "text-gray-600 scale-110" : "text-slate-400"
               }`}
             />
             <div className="space-y-2">
@@ -310,7 +344,7 @@ function UploadZone({ title, description, file, onFileUpload }: UploadZoneProps)
             />
             <Button
               variant="outline"
-              className="transition-all hover:scale-105 border-blue-200 text-blue-700 hover:bg-blue-50 font-medium bg-white/80"
+              className="transition-all hover:scale-105 border-gray-300 text-gray-700 hover:bg-gray-50 font-medium bg-white/80"
               asChild
             >
               <label htmlFor={inputId} className="cursor-pointer">

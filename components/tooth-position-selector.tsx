@@ -20,7 +20,7 @@ export function ToothPositionSelector({
   availableJaws,
 }: ToothPositionSelectorProps) {
   const getToothTypeColor = (type: ToothPosition["type"]) => {
-    return "bg-white text-black hover:bg-gray-50 border-black/30"
+    return "bg-white text-slate-800 hover:bg-slate-50 border-slate-300"
   }
 
   const handleToothClick = (fdiNumber: string, quadrant: number) => {
@@ -31,7 +31,12 @@ export function ToothPositionSelector({
       return
     }
 
-    onPositionSelect(fdiNumber)
+    // Toggle selection logic: if already selected, deselect; otherwise select
+    if (selectedPosition === fdiNumber) {
+      onPositionSelect("")
+    } else {
+      onPositionSelect(fdiNumber)
+    }
   }
 
   const isToothDisabled = (quadrant: number) => {
@@ -54,10 +59,10 @@ export function ToothPositionSelector({
   )
 
   return (
-    <Card className="border-2 border-black/20 shadow-md">
-      <CardHeader className="bg-white border-b border-black/20">
-        <CardTitle className="text-xl font-bold text-black">牙齿位置选择</CardTitle>
-        <CardDescription className="text-gray-600">点击选择需要修复的牙齿位置（FDI编号系统）</CardDescription>
+    <Card className="border-2 border-slate-200 shadow-md bg-gradient-to-br from-slate-50 to-white">
+      <CardHeader className="bg-gradient-to-r from-slate-100 to-slate-50 border-b border-slate-200">
+        <CardTitle className="text-xl font-bold text-slate-800">牙齿位置选择</CardTitle>
+        <CardDescription className="text-slate-600">点击选择需要修复的牙齿位置（FDI编号系统）</CardDescription>
       </CardHeader>
       <CardContent className="p-6 space-y-8">
         <div className="space-y-6">
@@ -166,48 +171,16 @@ export function ToothPositionSelector({
 
         {/* Selected Position Display */}
         {selectedPosition && (
-          <div className="p-4 bg-white border-2 border-black/20 rounded-lg shadow-sm">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <span className="font-semibold text-black">已选择牙齿：</span>
-                <Badge variant="outline" className="border-black/30 text-black px-3 py-1">
-                  {selectedPosition} - {FDI_TOOTH_POSITIONS.find((t) => t.fdiNumber === selectedPosition)?.name}
-                </Badge>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onPositionSelect("")}
-                className="text-black hover:bg-gray-100"
-              >
-                清除选择
-              </Button>
+          <div className="p-4 bg-gradient-to-r from-white to-slate-50 border border-slate-200 rounded-lg shadow-sm">
+            <div className="flex items-center space-x-3">
+              <span className="font-semibold text-slate-800">已选择牙齿：</span>
+              <Badge variant="outline" className="border-slate-300 text-slate-800 px-3 py-1">
+                {selectedPosition} - {FDI_TOOTH_POSITIONS.find((t) => t.fdiNumber === selectedPosition)?.name}
+              </Badge>
+              <span className="text-sm text-slate-600">（再次点击可取消选择）</span>
             </div>
           </div>
         )}
-
-        {/* Legend */}
-        <div className="bg-white border border-black/20 p-4 rounded-lg">
-          <h5 className="text-sm font-semibold text-center mb-3 text-black">牙齿类型图例</h5>
-          <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-white border border-black/30 rounded"></div>
-              <span className="text-black">切牙</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-white border border-black/30 rounded"></div>
-              <span className="text-black">尖牙</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-white border border-black/30 rounded"></div>
-              <span className="text-black">前磨牙</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-white border border-black/30 rounded"></div>
-              <span className="text-black">磨牙</span>
-            </div>
-          </div>
-        </div>
       </CardContent>
     </Card>
   )

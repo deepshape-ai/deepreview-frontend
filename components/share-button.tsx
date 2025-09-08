@@ -20,7 +20,7 @@ function ResizableDialogContent({
   className = "",
   onClose,
 }: { children: React.ReactNode; className?: string; onClose?: () => void }) {
-  const [size, setSize] = useState({ width: 768, height: 600 })
+  const [size, setSize] = useState({ width: 850, height: 700 })
   const [isResizing, setIsResizing] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
   const startPos = useRef({ x: 0, y: 0, width: 0, height: 0 })
@@ -56,18 +56,34 @@ function ResizableDialogContent({
     [isResizing],
   )
 
-  const handleMouseUp = useCallback(() => {
-    setIsResizing(false)
-  }, [])
+  const handleMouseUp = useCallback((e: MouseEvent) => {
+    if (isResizing) {
+      e.preventDefault()
+      e.stopPropagation()
+      setIsResizing(false)
+    }
+  }, [isResizing])
 
   // Add global mouse event listeners
   React.useEffect(() => {
     if (isResizing) {
-      document.addEventListener("mousemove", handleMouseMove)
-      document.addEventListener("mouseup", handleMouseUp)
+      const handleGlobalMouseMove = (e: MouseEvent) => {
+        e.preventDefault()
+        handleMouseMove(e)
+      }
+      
+      const handleGlobalMouseUp = (e: MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        handleMouseUp(e)
+      }
+
+      document.addEventListener("mousemove", handleGlobalMouseMove, { passive: false })
+      document.addEventListener("mouseup", handleGlobalMouseUp, { passive: false })
+      
       return () => {
-        document.removeEventListener("mousemove", handleMouseMove)
-        document.removeEventListener("mouseup", handleMouseUp)
+        document.removeEventListener("mousemove", handleGlobalMouseMove)
+        document.removeEventListener("mouseup", handleGlobalMouseUp)
       }
     }
   }, [isResizing, handleMouseMove, handleMouseUp])
@@ -78,7 +94,8 @@ function ResizableDialogContent({
       className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${className}`}
       style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
       onClick={(e) => {
-        if (e.target === e.currentTarget) {
+        // Don't close if currently resizing or if click is on dialog content
+        if (!isResizing && e.target === e.currentTarget) {
           onClose?.()
         }
       }}
@@ -102,7 +119,14 @@ function ResizableDialogContent({
         <div
           className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize bg-muted hover:bg-muted-foreground/20 transition-colors"
           onMouseDown={handleMouseDown}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+          onMouseUp={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
         >
           <div className="absolute bottom-1 right-1 w-2 h-2 border-r-2 border-b-2 border-muted-foreground/50" />
         </div>
@@ -134,37 +158,55 @@ export function ShareButton({ analysis }: ShareButtonProps) {
       const ctx = canvas.getContext("2d")
       if (!ctx) return
 
-      // High resolution for better quality
+      // High resolution for better quality - wider for left-right layout
       const scale = 2
-      canvas.width = 800 * scale
-      canvas.height = 600 * scale
+      canvas.width = 850 * scale
+      canvas.height = 700 * scale
       ctx.scale(scale, scale)
 
-      // Background gradient
-      const gradient = ctx.createLinearGradient(0, 0, 800, 600)
-      gradient.addColorStop(0, "#f8fafc")
-      gradient.addColorStop(1, "#e2e8f0")
+      // Light tech gradient background
+      const gradient = ctx.createLinearGradient(0, 0, 850, 700)
+      gradient.addColorStop(0, "#f8fafc") // slate-50
+      gradient.addColorStop(0.5, "#f1f5f9") // gray-100  
+      gradient.addColorStop(1, "#e2e8f0") // slate-200
       ctx.fillStyle = gradient
-      ctx.fillRect(0, 0, 800, 600)
+      ctx.fillRect(0, 0, 850, 700)
+      
+      // Subtle color overlay
+      const overlayGradient = ctx.createLinearGradient(0, 0, 850, 700)
+      overlayGradient.addColorStop(0, "rgba(239, 246, 255, 0.5)") // blue-50/50
+      overlayGradient.addColorStop(0.5, "rgba(250, 245, 255, 0.3)") // purple-50/30
+      overlayGradient.addColorStop(1, "rgba(253, 244, 255, 0.5)") // pink-50/50
+      ctx.fillStyle = overlayGradient
+      ctx.fillRect(0, 0, 850, 700)
+      
+      // Brand accent line at top
+      const accentGradient = ctx.createLinearGradient(0, 0, 850, 0)
+      accentGradient.addColorStop(0, "#06b6d4") // cyan-500
+      accentGradient.addColorStop(0.33, "#3b82f6") // blue-500
+      accentGradient.addColorStop(0.66, "#8b5cf6") // purple-500
+      accentGradient.addColorStop(1, "#ec4899") // pink-500
+      ctx.fillStyle = accentGradient
+      ctx.fillRect(0, 0, 850, 4)
 
       // Header section
-      ctx.fillStyle = "#1e293b"
+      ctx.fillStyle = "#0f172a" // slate-900
       ctx.font = "bold 28px Arial"
-      ctx.fillText("DeepShape - DeepReview", 40, 60)
+      ctx.fillText("DeepReview", 40, 60)
 
       // Subtitle
       ctx.font = "16px Arial"
-      ctx.fillStyle = "#64748b"
+      ctx.fillStyle = "#475569" // slate-600
       ctx.fillText("AI驱动的口腔修复体分析", 40, 85)
 
-      // Overall Score Circle
-      const centerX = 150
+      // Left side - Overall Score Circle 
+      const leftCenterX = 200 // left side center
       const centerY = 200
       const radius = 60
 
       // Score circle background
       ctx.beginPath()
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI)
+      ctx.arc(leftCenterX, centerY, radius, 0, 2 * Math.PI)
       ctx.fillStyle = analysis.overallScore >= 80 ? "#10b981" : analysis.overallScore >= 70 ? "#3b82f6" : "#ef4444"
       ctx.fill()
 
@@ -172,71 +214,82 @@ export function ShareButton({ analysis }: ShareButtonProps) {
       ctx.fillStyle = "#ffffff"
       ctx.font = "bold 36px Arial"
       ctx.textAlign = "center"
-      ctx.fillText(analysis.overallScore.toString(), centerX, centerY + 5)
+      ctx.fillText(analysis.overallScore.toString(), leftCenterX, centerY + 5)
       ctx.font = "14px Arial"
-      ctx.fillText("/100", centerX, centerY + 25)
+      ctx.fillText("/100", leftCenterX, centerY + 25)
 
       // Score label
-      ctx.fillStyle = "#1e293b"
+      ctx.fillStyle = "#0f172a" // slate-900
       ctx.font = "16px Arial"
-      ctx.fillText("总体评分", centerX, centerY + 90)
+      ctx.fillText("总体评分", leftCenterX, centerY + 90)
 
-      // Summary text
+      // Left side summary text
       ctx.textAlign = "left"
       ctx.font = "14px Arial"
-      ctx.fillStyle = "#374151"
+      ctx.fillStyle = "#374151" // gray-700
       const summaryWords = analysis.summary.split(" ")
       let line = ""
       let y = 140
-      const maxWidth = 520
+      const maxWidth = 350 // narrower for left column
       for (let i = 0; i < summaryWords.length; i++) {
         const testLine = line + summaryWords[i] + " "
         const metrics = ctx.measureText(testLine)
         if (metrics.width > maxWidth && i > 0) {
-          ctx.fillText(line, 280, y)
+          ctx.fillText(line, 40, y) // left aligned
           line = summaryWords[i] + " "
           y += 20
         } else {
           line = testLine
         }
       }
-      ctx.fillText(line, 280, y)
+      ctx.fillText(line, 40, y) // left aligned
 
-      // Dimension scores
-      const startY = 320
+      // Right side - Radar chart placeholder
+      ctx.textAlign = "center"
+      ctx.font = "16px Arial"
+      ctx.fillStyle = "#6b7280"
+      ctx.fillText("雷达图显示", 650, 200)
+
+      // Dimension scores - adjusted for wider layout
+      const startY = 380
+      const centerX = 425 // center of 850px width
       ctx.font = "bold 14px Arial"
-      ctx.fillStyle = "#1e293b"
-      ctx.fillText("维度分解:", 40, startY)
+      ctx.fillStyle = "#0f172a" // slate-900
+      ctx.textAlign = "center"
+      ctx.fillText("维度分解:", centerX, startY)
 
       analysis.detailedScores.forEach((score, index) => {
         const yPos = startY + 30 + index * 35
         const percentage = (score.score / score.maxScore) * 100
 
-        // Dimension name
+        // Dimension name - left aligned
         ctx.font = "12px Arial"
-        ctx.fillStyle = "#374151"
-        ctx.fillText(score.dimension, 40, yPos)
+        ctx.fillStyle = "#374151" // gray-700
+        ctx.textAlign = "left"
+        ctx.fillText(score.dimension, 100, yPos)
 
-        // Progress bar background
+        // Progress bar background - adjusted for wider width
         ctx.fillStyle = "#e5e7eb"
-        ctx.fillRect(200, yPos - 10, 200, 8)
+        ctx.fillRect(320, yPos - 10, 280, 8)
 
         // Progress bar fill
         const barColor = percentage >= 85 ? "#10b981" : percentage >= 70 ? "#3b82f6" : "#ef4444"
         ctx.fillStyle = barColor
-        ctx.fillRect(200, yPos - 10, (200 * percentage) / 100, 8)
+        ctx.fillRect(320, yPos - 10, (280 * percentage) / 100, 8)
 
         // Score text
         ctx.font = "12px Arial"
         ctx.fillStyle = "#6b7280"
-        ctx.fillText(`${score.score}/${score.maxScore}`, 420, yPos)
+        ctx.textAlign = "right"
+        ctx.fillText(`${score.score}/${score.maxScore}`, 720, yPos)
       })
 
-      // Footer
+      // Footer - centered for wider layout
       ctx.font = "10px Arial"
-      ctx.fillStyle = "#9ca3af"
-      ctx.fillText(`分析日期：${new Date(analysis.analysisDate).toLocaleDateString()}`, 40, 570)
-      ctx.fillText(`ID：${analysis.submissionId}`, 600, 570)
+      ctx.fillStyle = "#6b7280" // gray-500
+      ctx.textAlign = "center"
+      ctx.fillText(`分析日期：${new Date(analysis.analysisDate).toLocaleDateString()}`, centerX, 650)
+      ctx.fillText(`ID：${analysis.submissionId}`, centerX, 670)
 
       // Download
       const link = document.createElement("a")
@@ -273,26 +326,33 @@ export function ShareButton({ analysis }: ShareButtonProps) {
           </DialogHeader>
 
           <div className="space-y-4 mt-4">
-            <Card className="bg-white border-2 border-black/20">
-              <CardHeader className="text-center pb-2">
+            <Card className="relative overflow-hidden border-0 shadow-2xl">
+              {/* Light tech gradient background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-gray-100 to-slate-200"></div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-blue-50/50 via-purple-50/30 to-pink-50/50"></div>
+              
+              {/* Brand accent line */}
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-blue-500 via-purple-500 to-pink-500"></div>
+              <CardHeader className="text-center pb-2 relative z-10">
                 <div className="flex items-center justify-center space-x-2 mb-1">
-                  <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold text-sm">DR</span>
+                  <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-lg">
+                    <span className="text-white font-bold text-sm">DR</span>
                   </div>
                   <div className="text-left">
-                    <div className="text-lg font-bold">DeepReview</div>
-                    <div className="text-xs text-muted-foreground">AI驱动的口腔修复体分析</div>
+                    <div className="text-lg font-bold text-slate-900">DeepReview</div>
+                    <div className="text-xs text-slate-600">AI驱动的口腔修复体分析</div>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid lg:grid-cols-2 gap-4">
+              <CardContent className="space-y-4 relative z-10">
+                {/* Left-right layout: score on left, radar chart on right */}
+                <div className="grid grid-cols-2 gap-6">
                   {/* Left side - Score and Summary */}
                   <div className="text-center space-y-2">
                     <div>
-                      <div className="text-4xl font-bold text-black mb-1">{analysis.overallScore}</div>
-                      <div className="text-sm text-gray-600">/100</div>
-                      <Badge variant="outline" className="mt-1 text-xs border-black/30 text-black">
+                      <div className="text-4xl font-bold text-slate-900 mb-1 drop-shadow-sm">{analysis.overallScore}</div>
+                      <div className="text-sm text-slate-600">/100</div>
+                      <Badge variant="outline" className="mt-1 text-xs border-slate-400 text-slate-700 bg-white/80 backdrop-blur-sm">
                         {analysis.overallScore >= 90
                           ? "优秀"
                           : analysis.overallScore >= 80
@@ -302,37 +362,37 @@ export function ShareButton({ analysis }: ShareButtonProps) {
                               : "需要改进"}
                       </Badge>
                     </div>
-                    <div className="text-xs text-gray-600 leading-relaxed px-2">
-                      {analysis.summary.length > 100 ? `${analysis.summary.substring(0, 100)}...` : analysis.summary}
+                    <div className="text-xs text-slate-700 leading-relaxed px-2">
+                      {analysis.summary.length > 120 ? `${analysis.summary.substring(0, 120)}...` : analysis.summary}
                     </div>
                   </div>
 
                   {/* Right side - Radar Chart */}
                   <div className="flex items-center justify-center">
-                    <RadarChart data={radarData} size={200} />
+                    <RadarChart data={radarData} size={180} />
                   </div>
                 </div>
 
                 {/* Dimension Scores Grid */}
-                <div className="border-t border-black/20 pt-3">
-                  <h4 className="font-semibold mb-2 text-center text-sm text-black">维度分解</h4>
+                <div className="border-t border-slate-300 pt-3">
+                  <h4 className="font-semibold mb-2 text-center text-sm text-slate-900">维度分解</h4>
                   <div className="grid grid-cols-5 gap-2 text-xs">
                     {analysis.detailedScores.map((score) => (
                       <div key={score.dimension} className="text-center p-1">
-                        <div className="font-medium mb-1 truncate text-black" title={score.dimension}>
+                        <div className="font-medium mb-1 truncate text-slate-700" title={score.dimension}>
                           {score.dimension.split(" ")[0]}
                         </div>
-                        <div className="text-sm font-bold text-black">
+                        <div className="text-sm font-bold text-slate-900">
                           {score.score}
-                          <span className="text-gray-600">/{score.maxScore}</span>
+                          <span className="text-slate-600">/{score.maxScore}</span>
                         </div>
-                        <div className="text-gray-600">{((score.score / score.maxScore) * 100).toFixed(0)}%</div>
+                        <div className="text-slate-600">{((score.score / score.maxScore) * 100).toFixed(0)}%</div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="text-center text-xs text-gray-600 border-t border-black/20 pt-2">
+                <div className="text-center text-xs text-slate-500 border-t border-slate-300 pt-2">
                   分析日期：{new Date(analysis.analysisDate).toLocaleDateString()} • ID：{" "}
                   {analysis.submissionId.slice(-8)}
                 </div>

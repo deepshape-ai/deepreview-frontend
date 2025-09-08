@@ -32,68 +32,76 @@ export function StatsOverview({ analyses }: StatsOverviewProps) {
     }) || []
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return "text-green-600"
-    if (score >= 80) return "text-blue-600"
-    if (score >= 70) return "text-yellow-600"
-    return "text-red-600"
+    if (score >= 90) return "text-gray-900"
+    if (score >= 80) return "text-gray-700"
+    if (score >= 70) return "text-gray-500"
+    return "text-gray-400"
   }
 
   const getImprovementColor = (improvement: number) => {
-    if (improvement > 0) return "text-green-600"
-    if (improvement < 0) return "text-red-600"
+    if (improvement > 0) return "text-gray-900"
+    if (improvement < 0) return "text-gray-500"
     return "text-muted-foreground"
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {/* Average Score */}
-      <Card>
+      <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-lg shadow-blue-100/50">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">平均分数</CardTitle>
-          <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium text-blue-800">平均分数</CardTitle>
+          <div className="p-1.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full">
+            <BarChart3 className="h-4 w-4 text-white" />
+          </div>
         </CardHeader>
         <CardContent>
-          <div className={`text-2xl font-bold ${getScoreColor(averageScore)}`}>{averageScore.toFixed(1)}</div>
-          <p className="text-xs text-muted-foreground">基于{analyses.length}次分析</p>
+          <div className={`text-2xl font-bold text-blue-700`}>{averageScore.toFixed(1)}</div>
+          <p className="text-xs text-blue-600">基于{analyses.length}次分析</p>
         </CardContent>
       </Card>
 
       {/* Best Score */}
-      <Card>
+      <Card className="bg-gradient-to-br from-amber-50 to-orange-100 border-amber-200 shadow-lg shadow-amber-100/50">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">最佳分数</CardTitle>
-          <Trophy className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium text-amber-800">最佳分数</CardTitle>
+          <div className="p-1.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full">
+            <Trophy className="h-4 w-4 text-white" />
+          </div>
         </CardHeader>
         <CardContent>
-          <div className={`text-2xl font-bold ${getScoreColor(bestScore)}`}>{bestScore}</div>
-          <p className="text-xs text-muted-foreground">个人最佳</p>
+          <div className={`text-2xl font-bold text-amber-700`}>{bestScore}</div>
+          <p className="text-xs text-amber-600">个人最佳</p>
         </CardContent>
       </Card>
 
       {/* Latest Improvement */}
-      <Card>
+      <Card className="bg-gradient-to-br from-emerald-50 to-green-100 border-emerald-200 shadow-lg shadow-emerald-100/50">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">最近变化</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium text-emerald-800">最近变化</CardTitle>
+          <div className="p-1.5 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full">
+            <TrendingUp className="h-4 w-4 text-white" />
+          </div>
         </CardHeader>
         <CardContent>
-          <div className={`text-2xl font-bold ${getImprovementColor(improvement)}`}>
+          <div className={`text-2xl font-bold ${improvement > 0 ? "text-emerald-700" : improvement < 0 ? "text-red-600" : "text-gray-600"}`}>
             {improvement > 0 ? "+" : ""}
             {improvement.toFixed(1)}
           </div>
-          <p className="text-xs text-muted-foreground">与上次分析相比</p>
+          <p className="text-xs text-emerald-600">与上次分析相比</p>
         </CardContent>
       </Card>
 
       {/* Total Analyses */}
-      <Card>
+      <Card className="bg-gradient-to-br from-purple-50 to-violet-100 border-purple-200 shadow-lg shadow-purple-100/50">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">总分析数</CardTitle>
-          <Target className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium text-purple-800">总分析数</CardTitle>
+          <div className="p-1.5 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full">
+            <Target className="h-4 w-4 text-white" />
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{analyses.length}</div>
-          <p className="text-xs text-muted-foreground">已完成提交</p>
+          <div className="text-2xl font-bold text-purple-700">{analyses.length}</div>
+          <p className="text-xs text-purple-600">已完成提交</p>
         </CardContent>
       </Card>
 

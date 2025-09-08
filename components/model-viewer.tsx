@@ -36,7 +36,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
       try {
         const container = mountRef.current
         const containerWidth = container.clientWidth
-        const containerHeight = container.clientHeight || 500
+        const containerHeight = container.clientHeight || 600
 
         const scene = new THREE.Scene()
         scene.background = new THREE.Color(0xf8f9fa)
@@ -54,49 +54,113 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
         renderer.shadowMap.type = THREE.PCFSoftShadowMap
         rendererRef.current = renderer
 
-        let isDragging = false
+        // 交互控制状态
+        let isRotating = false
+        let isPanning = false
         let previousMousePosition = { x: 0, y: 0 }
+        
+        // 球坐标系用于稳定的旋转
+        let sphericalPosition = {
+          radius: Math.sqrt(camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2),
+          theta: Math.atan2(camera.position.x, camera.position.z), // 水平角度
+          phi: Math.acos(camera.position.y / Math.sqrt(camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2)) // 垂直角度
+        }
+
+        const updateCameraFromSpherical = () => {
+          camera.position.x = sphericalPosition.radius * Math.sin(sphericalPosition.phi) * Math.sin(sphericalPosition.theta)
+          camera.position.y = sphericalPosition.radius * Math.cos(sphericalPosition.phi)
+          camera.position.z = sphericalPosition.radius * Math.sin(sphericalPosition.phi) * Math.cos(sphericalPosition.theta)
+          camera.lookAt(0, 0, 0)
+        }
 
         const handleMouseDown = (event: MouseEvent) => {
-          isDragging = true
+          event.preventDefault()
           previousMousePosition = { x: event.clientX, y: event.clientY }
+          
+          if (event.button === 0) { // 左键 - 旋转
+            isRotating = true
+          } else if (event.button === 2) { // 右键 - 平移
+            isPanning = true
+          }
         }
 
         const handleMouseMove = (event: MouseEvent) => {
-          if (!isDragging) return
+          if (!isRotating && !isPanning) return
+          event.preventDefault()
 
           const deltaMove = {
             x: event.clientX - previousMousePosition.x,
             y: event.clientY - previousMousePosition.y,
           }
 
-          const rotationSpeed = 0.005
-          camera.position.x =
-            camera.position.x * Math.cos(deltaMove.x * rotationSpeed) -
-            camera.position.z * Math.sin(deltaMove.x * rotationSpeed)
-          camera.position.z =
-            camera.position.x * Math.sin(deltaMove.x * rotationSpeed) +
-            camera.position.z * Math.cos(deltaMove.x * rotationSpeed)
-          camera.position.y += deltaMove.y * rotationSpeed * 10
+          if (isRotating) {
+            // 左键旋转 - 使用球坐标系
+            const rotationSpeed = 0.005
+            sphericalPosition.theta += deltaMove.x * rotationSpeed
+            sphericalPosition.phi += deltaMove.y * rotationSpeed
+            
+            // 限制垂直旋转角度，避免翻转
+            sphericalPosition.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalPosition.phi))
+            
+            updateCameraFromSpherical()
+          } else if (isPanning) {
+            // 右键平移
+            const panSpeed = 0.02
+            const right = new THREE.Vector3()
+            const up = new THREE.Vector3()
+            
+            camera.getWorldDirection(right)
+            right.cross(camera.up).normalize()
+            up.copy(camera.up)
+            
+            const panVector = new THREE.Vector3()
+            panVector.addScaledVector(right, -deltaMove.x * panSpeed)
+            panVector.addScaledVector(up, deltaMove.y * panSpeed)
+            
+            camera.position.add(panVector)
+            
+            // 更新球坐标系以保持一致性
+            sphericalPosition.radius = Math.sqrt(camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2)
+          }
 
-          camera.lookAt(0, 0, 0)
           previousMousePosition = { x: event.clientX, y: event.clientY }
         }
 
-        const handleMouseUp = () => {
-          isDragging = false
+        const handleMouseUp = (event: MouseEvent) => {
+          event.preventDefault()
+          isRotating = false
+          isPanning = false
         }
 
         const handleWheel = (event: WheelEvent) => {
+          event.preventDefault() // 阻止页面滚动
+          event.stopPropagation()
+          
           const zoomSpeed = 0.1
           const zoomFactor = event.deltaY > 0 ? 1 + zoomSpeed : 1 - zoomSpeed
-          camera.position.multiplyScalar(zoomFactor)
+          
+          sphericalPosition.radius *= zoomFactor
+          sphericalPosition.radius = Math.max(5, Math.min(100, sphericalPosition.radius)) // 限制缩放范围
+          
+          updateCameraFromSpherical()
+        }
+
+        const handleContextMenu = (event: MouseEvent) => {
+          event.preventDefault() // 禁用右键菜单
+        }
+
+        // 添加鼠标离开处理
+        const handleMouseLeave = () => {
+          isRotating = false
+          isPanning = false
         }
 
         renderer.domElement.addEventListener("mousedown", handleMouseDown)
         renderer.domElement.addEventListener("mousemove", handleMouseMove)
         renderer.domElement.addEventListener("mouseup", handleMouseUp)
-        renderer.domElement.addEventListener("wheel", handleWheel)
+        renderer.domElement.addEventListener("mouseleave", handleMouseLeave)
+        renderer.domElement.addEventListener("wheel", handleWheel, { passive: false })
+        renderer.domElement.addEventListener("contextmenu", handleContextMenu)
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
         scene.add(ambientLight)
@@ -115,7 +179,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
         const handleResize = () => {
           if (!mountRef.current) return
           const newWidth = mountRef.current.clientWidth
-          const newHeight = mountRef.current.clientHeight || 500
+          const newHeight = mountRef.current.clientHeight || 600
 
           camera.aspect = newWidth / newHeight
           camera.updateProjectionMatrix()
@@ -139,7 +203,9 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
           renderer.domElement.removeEventListener("mousedown", handleMouseDown)
           renderer.domElement.removeEventListener("mousemove", handleMouseMove)
           renderer.domElement.removeEventListener("mouseup", handleMouseUp)
+          renderer.domElement.removeEventListener("mouseleave", handleMouseLeave)
           renderer.domElement.removeEventListener("wheel", handleWheel)
+          renderer.domElement.removeEventListener("contextmenu", handleContextMenu)
         }
       } catch (err) {
         console.error("Failed to initialize 3D viewer:", err)
@@ -152,7 +218,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
       try {
         if (upperJawUrl) {
           try {
-            const upperJawModel = await loadModelFromUrl(upperJawUrl, 0xf5f5dc, { x: 0, y: 3, z: 0 })
+            const upperJawModel = await loadModelFromUrl(upperJawUrl, 0x3b82f6, { x: 0, y: 0, z: 0 })
             if (upperJawModel) {
               scene.add(upperJawModel)
               upperJawModelRef.current = upperJawModel
@@ -170,7 +236,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
 
         if (lowerJawUrl) {
           try {
-            const lowerJawModel = await loadModelFromUrl(lowerJawUrl, 0xffe4e1, { x: 0, y: -3, z: 0 })
+            const lowerJawModel = await loadModelFromUrl(lowerJawUrl, 0x10b981, { x: 0, y: 0, z: 0 })
             if (lowerJawModel) {
               scene.add(lowerJawModel)
               lowerJawModelRef.current = lowerJawModel
@@ -188,7 +254,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
 
         if (restorationUrl) {
           try {
-            const restorationModel = await loadModelFromUrl(restorationUrl, 0x8b9dc3, { x: 5, y: 3, z: 0 })
+            const restorationModel = await loadModelFromUrl(restorationUrl, 0xf59e0b, { x: 0, y: 0, z: 0 })
             if (restorationModel) {
               scene.add(restorationModel)
               restorationModelRef.current = restorationModel
@@ -393,9 +459,9 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
       upperJawGeometry.computeVertexNormals()
 
       const upperJawMaterial = new THREE.MeshPhongMaterial({
-        color: 0xf5f5dc,
+        color: 0x3b82f6,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.85,
       })
       const upperJawModel = new THREE.Mesh(upperJawGeometry, upperJawMaterial)
       upperJawModel.castShadow = true
@@ -416,9 +482,9 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
       lowerJawGeometry.computeVertexNormals()
 
       const lowerJawMaterial = new THREE.MeshPhongMaterial({
-        color: 0xffe4e1,
+        color: 0x10b981,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.85,
       })
       const lowerJawModel = new THREE.Mesh(lowerJawGeometry, lowerJawMaterial)
       lowerJawModel.castShadow = true
@@ -440,7 +506,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
       restorationGeometry.computeVertexNormals()
 
       const restorationMaterial = new THREE.MeshPhongMaterial({
-        color: 0x8b9dc3,
+        color: 0xf59e0b,
         transparent: true,
         opacity: 0.9,
       })
@@ -486,18 +552,39 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
     if (cameraRef.current) {
       cameraRef.current.position.set(30, 20, 30)
       cameraRef.current.lookAt(0, 0, 0)
+      
+      // 重置球坐标系状态
+      const sphericalPosition = {
+        radius: Math.sqrt(30 ** 2 + 20 ** 2 + 30 ** 2),
+        theta: Math.atan2(30, 30),
+        phi: Math.acos(20 / Math.sqrt(30 ** 2 + 20 ** 2 + 30 ** 2))
+      }
     }
   }
 
   const handleZoomIn = () => {
     if (cameraRef.current) {
-      cameraRef.current.position.multiplyScalar(0.9)
+      // 使用球坐标系进行缩放
+      const currentRadius = Math.sqrt(
+        cameraRef.current.position.x ** 2 + 
+        cameraRef.current.position.y ** 2 + 
+        cameraRef.current.position.z ** 2
+      )
+      const newRadius = Math.max(5, currentRadius * 0.9)
+      cameraRef.current.position.multiplyScalar(newRadius / currentRadius)
     }
   }
 
   const handleZoomOut = () => {
     if (cameraRef.current) {
-      cameraRef.current.position.multiplyScalar(1.1)
+      // 使用球坐标系进行缩放
+      const currentRadius = Math.sqrt(
+        cameraRef.current.position.x ** 2 + 
+        cameraRef.current.position.y ** 2 + 
+        cameraRef.current.position.z ** 2
+      )
+      const newRadius = Math.min(100, currentRadius * 1.1)
+      cameraRef.current.position.multiplyScalar(newRadius / currentRadius)
     }
   }
 
@@ -524,7 +611,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
               variant="outline"
               size="sm"
               onClick={() => setShowUpperJaw(!showUpperJaw)}
-              className={showUpperJaw ? "bg-yellow-100 text-yellow-700" : ""}
+              className={showUpperJaw ? "bg-gray-100 text-gray-700" : ""}
             >
               {showUpperJaw ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               上颌
@@ -533,7 +620,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
               variant="outline"
               size="sm"
               onClick={() => setShowLowerJaw(!showLowerJaw)}
-              className={showLowerJaw ? "bg-pink-100 text-pink-700" : ""}
+              className={showLowerJaw ? "bg-gray-100 text-gray-700" : ""}
             >
               {showLowerJaw ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               下颌
@@ -542,7 +629,7 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
               variant="outline"
               size="sm"
               onClick={() => setShowRestoration(!showRestoration)}
-              className={showRestoration ? "bg-blue-100 text-blue-700" : ""}
+              className={showRestoration ? "bg-gray-100 text-gray-700" : ""}
             >
               {showRestoration ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               修复体
@@ -554,8 +641,8 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
         <div className="relative">
           <div
             ref={mountRef}
-            className="w-full h-[500px] rounded-lg overflow-hidden bg-gray-50"
-            style={{ minHeight: "500px" }}
+            className="w-full h-[600px] rounded-lg overflow-hidden bg-gray-50"
+            style={{ minHeight: "600px" }}
           />
 
           {isLoading && (
@@ -575,15 +662,15 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
             </p>
             <div className="flex items-center space-x-4 mt-2">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-yellow-300 rounded"></div>
+                <div className="w-3 h-3 bg-blue-500 rounded shadow-sm"></div>
                 <span>上颌模型</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-pink-300 rounded"></div>
+                <div className="w-3 h-3 bg-emerald-500 rounded shadow-sm"></div>
                 <span>下颌模型</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-300 rounded"></div>
+                <div className="w-3 h-3 bg-amber-500 rounded shadow-sm"></div>
                 <span>修复体模型</span>
               </div>
             </div>

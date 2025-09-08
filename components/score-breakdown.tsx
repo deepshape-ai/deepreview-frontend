@@ -35,10 +35,10 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
 
   const getDimensionVisualContent = (dimension: string, score: number) => {
     switch (dimension) {
-      case "Marginal Fit":
+      case "边缘密合性":
         return {
           type: "technical",
-          icon: <Ruler className="h-4 w-4" />,
+          icon: <Ruler className="h-4 w-4" style={{ color: "var(--tech-blue)" }} />,
           title: "技术参数",
           content: (
             <div className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-lg p-4 border">
@@ -69,7 +69,7 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                   <div className="flex justify-between items-center p-2 bg-white rounded border">
                     <span className="text-muted-foreground font-medium">密封质量：</span>
                     <span
-                      className={`font-semibold ${score >= 18 ? "text-green-600" : score >= 16 ? "text-yellow-600" : "text-red-600"}`}
+                      className={`font-semibold ${score >= 18 ? "text-gray-900" : score >= 16 ? "text-gray-600" : "text-gray-400"}`}
                     >
                       {score >= 18 ? "优秀" : score >= 16 ? "良好" : "一般"}
                     </span>
@@ -79,10 +79,10 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
             </div>
           ),
         }
-      case "Axial Contour":
+      case "轴面外形":
         return {
           type: "image",
-          icon: <Eye className="h-4 w-4" />,
+          icon: <Eye className="h-4 w-4" style={{ color: "var(--tech-green)" }} />,
           title: "视觉分析",
           content: (
             <div className="bg-gradient-to-br from-white to-slate-50 rounded-lg p-4 border shadow-sm">
@@ -93,16 +93,16 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                 height={200}
                 className="rounded-lg border-2 border-slate-200 w-full object-cover shadow-sm"
               />
-              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-blue-300">
+              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-gray-400">
                 显示轴面轮廓和萌出轮廓的特写视图
               </p>
             </div>
           ),
         }
-      case "Proximal Contact":
+      case "邻接触关系":
         return {
           type: "image",
-          icon: <Eye className="h-4 w-4" />,
+          icon: <Eye className="h-4 w-4" style={{ color: "var(--tech-purple)" }} />,
           title: "接触点分析",
           content: (
             <div className="bg-gradient-to-br from-white to-slate-50 rounded-lg p-4 border shadow-sm">
@@ -113,16 +113,16 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                 height={200}
                 className="rounded-lg border-2 border-slate-200 w-full object-cover shadow-sm"
               />
-              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-green-300">
+              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-gray-400">
                 邻面接触关系和紧密度的详细视图
               </p>
             </div>
           ),
         }
-      case "Occlusal Relationship":
+      case "咀合关系":
         return {
           type: "image",
-          icon: <Eye className="h-4 w-4" />,
+          icon: <Eye className="h-4 w-4" style={{ color: "var(--tech-orange)" }} />,
           title: "咬合关系",
           content: (
             <div className="bg-gradient-to-br from-white to-slate-50 rounded-lg p-4 border shadow-sm">
@@ -133,16 +133,16 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                 height={200}
                 className="rounded-lg border-2 border-slate-200 w-full object-cover shadow-sm"
               />
-              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-purple-300">
+              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-gray-400">
                 咬合面显示中心止点和侧方运动
               </p>
             </div>
           ),
         }
-      case "Structural Aesthetics":
+      case "结构美学":
         return {
           type: "image",
-          icon: <Eye className="h-4 w-4" />,
+          icon: <Eye className="h-4 w-4" style={{ color: "var(--tech-cyan)" }} />,
           title: "表面细节分析",
           content: (
             <div className="bg-gradient-to-br from-white to-slate-50 rounded-lg p-4 border shadow-sm">
@@ -153,7 +153,7 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
                 height={200}
                 className="rounded-lg border-2 border-slate-200 w-full object-cover shadow-sm"
               />
-              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-orange-300">
+              <p className="text-xs text-muted-foreground mt-3 p-2 bg-slate-50 rounded border-l-4 border-gray-400">
                 解剖再现显示牙尖、窝沟和表面纹理
               </p>
             </div>
@@ -174,25 +174,25 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
         return (
           <Collapsible key={score.dimension} open={isOpen} onOpenChange={() => toggleItem(score.dimension)}>
             <CollapsibleTrigger className="w-full">
-              <div className="flex items-center justify-between p-6 border-2 border-black/20 rounded-xl hover:shadow-md transition-all duration-200 bg-white">
+              <div className="flex items-center justify-between p-6 border-2 border-slate-200 rounded-xl hover:shadow-lg transition-all duration-200 bg-gradient-to-r from-slate-50 via-white to-slate-50">
                 <div className="flex items-center space-x-4">
-                  <div className="p-2 bg-white border border-black/20 rounded-full shadow-sm">
+                  <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-200 rounded-full shadow-sm">
                     {isOpen ? (
-                      <ChevronDown className="h-5 w-5 text-black" />
+                      <ChevronDown className="h-5 w-5 text-indigo-700" />
                     ) : (
-                      <ChevronRight className="h-5 w-5 text-black" />
+                      <ChevronRight className="h-5 w-5 text-indigo-700" />
                     )}
                   </div>
                   <div className="text-left">
-                    <h4 className="font-bold text-lg text-black">{score.dimension}</h4>
+                    <h4 className="font-bold text-lg text-slate-800">{score.dimension}</h4>
                     <div className="flex items-center space-x-3 mt-2">
                       <Progress value={percentage} className="w-32 h-3" />
-                      <span className="text-sm font-semibold text-black">{percentage.toFixed(0)}%</span>
+                      <span className="text-sm font-semibold text-slate-700">{percentage.toFixed(0)}%</span>
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-black">
+                  <div className="text-2xl font-bold text-slate-800">
                     {score.score}/{score.maxScore}
                   </div>
                 </div>

@@ -2,44 +2,44 @@ import type { AnalysisResult, ToothPosition } from "./types"
 
 export const FDI_TOOTH_POSITIONS: ToothPosition[] = [
   // Quadrant 1 (Upper Right)
-  { fdiNumber: "18", quadrant: 1, position: 8, name: "3rd Molar", type: "molar" },
-  { fdiNumber: "17", quadrant: 1, position: 7, name: "2nd Molar", type: "molar" },
-  { fdiNumber: "16", quadrant: 1, position: 6, name: "1st Molar", type: "molar" },
-  { fdiNumber: "15", quadrant: 1, position: 5, name: "2nd Premolar", type: "premolar" },
-  { fdiNumber: "14", quadrant: 1, position: 4, name: "1st Premolar", type: "premolar" },
-  { fdiNumber: "13", quadrant: 1, position: 3, name: "Canine", type: "canine" },
-  { fdiNumber: "12", quadrant: 1, position: 2, name: "Lateral Incisor", type: "incisor" },
-  { fdiNumber: "11", quadrant: 1, position: 1, name: "Central Incisor", type: "incisor" },
+  { fdiNumber: "18", quadrant: 1, position: 8, name: "第三磨牙（智齿）", type: "molar" },
+  { fdiNumber: "17", quadrant: 1, position: 7, name: "第二磨牙", type: "molar" },
+  { fdiNumber: "16", quadrant: 1, position: 6, name: "第一磨牙", type: "molar" },
+  { fdiNumber: "15", quadrant: 1, position: 5, name: "第二前磨牙", type: "premolar" },
+  { fdiNumber: "14", quadrant: 1, position: 4, name: "第一前磨牙", type: "premolar" },
+  { fdiNumber: "13", quadrant: 1, position: 3, name: "尖牙（犬齿）", type: "canine" },
+  { fdiNumber: "12", quadrant: 1, position: 2, name: "侧切牙", type: "incisor" },
+  { fdiNumber: "11", quadrant: 1, position: 1, name: "中切牙", type: "incisor" },
 
   // Quadrant 2 (Upper Left)
-  { fdiNumber: "21", quadrant: 2, position: 1, name: "Central Incisor", type: "incisor" },
-  { fdiNumber: "22", quadrant: 2, position: 2, name: "Lateral Incisor", type: "incisor" },
-  { fdiNumber: "23", quadrant: 2, position: 3, name: "Canine", type: "canine" },
-  { fdiNumber: "24", quadrant: 2, position: 4, name: "1st Premolar", type: "premolar" },
-  { fdiNumber: "25", quadrant: 2, position: 5, name: "2nd Premolar", type: "premolar" },
-  { fdiNumber: "26", quadrant: 2, position: 6, name: "1st Molar", type: "molar" },
-  { fdiNumber: "27", quadrant: 2, position: 7, name: "2nd Molar", type: "molar" },
-  { fdiNumber: "28", quadrant: 2, position: 8, name: "3rd Molar", type: "molar" },
+  { fdiNumber: "21", quadrant: 2, position: 1, name: "中切牙", type: "incisor" },
+  { fdiNumber: "22", quadrant: 2, position: 2, name: "侧切牙", type: "incisor" },
+  { fdiNumber: "23", quadrant: 2, position: 3, name: "尖牙（犬齿）", type: "canine" },
+  { fdiNumber: "24", quadrant: 2, position: 4, name: "第一前磨牙", type: "premolar" },
+  { fdiNumber: "25", quadrant: 2, position: 5, name: "第二前磨牙", type: "premolar" },
+  { fdiNumber: "26", quadrant: 2, position: 6, name: "第一磨牙", type: "molar" },
+  { fdiNumber: "27", quadrant: 2, position: 7, name: "第二磨牙", type: "molar" },
+  { fdiNumber: "28", quadrant: 2, position: 8, name: "第三磨牙（智齿）", type: "molar" },
 
   // Quadrant 3 (Lower Left)
-  { fdiNumber: "38", quadrant: 3, position: 8, name: "3rd Molar", type: "molar" },
-  { fdiNumber: "37", quadrant: 3, position: 7, name: "2nd Molar", type: "molar" },
-  { fdiNumber: "36", quadrant: 3, position: 6, name: "1st Molar", type: "molar" },
-  { fdiNumber: "35", quadrant: 3, position: 5, name: "2nd Premolar", type: "premolar" },
-  { fdiNumber: "34", quadrant: 3, position: 4, name: "1st Premolar", type: "premolar" },
-  { fdiNumber: "33", quadrant: 3, position: 3, name: "Canine", type: "canine" },
-  { fdiNumber: "32", quadrant: 3, position: 2, name: "Lateral Incisor", type: "incisor" },
-  { fdiNumber: "31", quadrant: 3, position: 1, name: "Central Incisor", type: "incisor" },
+  { fdiNumber: "38", quadrant: 3, position: 8, name: "第三磨牙（智齿）", type: "molar" },
+  { fdiNumber: "37", quadrant: 3, position: 7, name: "第二磨牙", type: "molar" },
+  { fdiNumber: "36", quadrant: 3, position: 6, name: "第一磨牙", type: "molar" },
+  { fdiNumber: "35", quadrant: 3, position: 5, name: "第二前磨牙", type: "premolar" },
+  { fdiNumber: "34", quadrant: 3, position: 4, name: "第一前磨牙", type: "premolar" },
+  { fdiNumber: "33", quadrant: 3, position: 3, name: "尖牙（犬齿）", type: "canine" },
+  { fdiNumber: "32", quadrant: 3, position: 2, name: "侧切牙", type: "incisor" },
+  { fdiNumber: "31", quadrant: 3, position: 1, name: "中切牙", type: "incisor" },
 
   // Quadrant 4 (Lower Right)
-  { fdiNumber: "41", quadrant: 4, position: 1, name: "Central Incisor", type: "incisor" },
-  { fdiNumber: "42", quadrant: 4, position: 2, name: "Lateral Incisor", type: "incisor" },
-  { fdiNumber: "43", quadrant: 4, position: 3, name: "Canine", type: "canine" },
-  { fdiNumber: "44", quadrant: 4, position: 4, name: "1st Premolar", type: "premolar" },
-  { fdiNumber: "45", quadrant: 4, position: 5, name: "2nd Premolar", type: "premolar" },
-  { fdiNumber: "46", quadrant: 4, position: 6, name: "1st Molar", type: "molar" },
-  { fdiNumber: "47", quadrant: 4, position: 7, name: "2nd Molar", type: "molar" },
-  { fdiNumber: "48", quadrant: 4, position: 8, name: "3rd Molar", type: "molar" },
+  { fdiNumber: "41", quadrant: 4, position: 1, name: "中切牙", type: "incisor" },
+  { fdiNumber: "42", quadrant: 4, position: 2, name: "侧切牙", type: "incisor" },
+  { fdiNumber: "43", quadrant: 4, position: 3, name: "尖牙（犬齿）", type: "canine" },
+  { fdiNumber: "44", quadrant: 4, position: 4, name: "第一前磨牙", type: "premolar" },
+  { fdiNumber: "45", quadrant: 4, position: 5, name: "第二前磨牙", type: "premolar" },
+  { fdiNumber: "46", quadrant: 4, position: 6, name: "第一磨牙", type: "molar" },
+  { fdiNumber: "47", quadrant: 4, position: 7, name: "第二磨牙", type: "molar" },
+  { fdiNumber: "48", quadrant: 4, position: 8, name: "第三磨牙（智齿）", type: "molar" },
 ]
 
 // Mock API service that simulates AI analysis
@@ -89,67 +89,67 @@ export class MockAnalysisService {
       toothPosition, // Added tooth position to result
       detailedScores: [
         {
-          dimension: "Marginal Fit",
+          dimension: "边缘密合性",
           score: scores.marginalFit,
           maxScore: 20,
-          criteria: "The margin should be a continuous, sealed interface with no gaps or ledges.",
+          criteria: "修复体边缘应与牙体预备边缘形成连续、密闭的接触界面，无间隙或台阶。边缘密合的好坏直接影响修复体的长期成功率，是口腔修复中的关键指标。",
           reason:
             scores.marginalFit >= 18
-              ? "Excellent marginal seal achieved with consistent adaptation."
+              ? "边缘密合性优秀，在各个部位均实现了理想的贴合和密封，能有效防止继发龋病和牙齿脱矿。"
               : scores.marginalFit >= 16
-                ? "Good marginal fit with minor areas requiring attention."
-                : "Minor open margin detected. Consider refining the preparation margins.",
+                ? "边缘密合性良好，大部分区域密合良好，仅在小部分区域需要调整和优化。"
+                : "检测到轻微的边缘间隙，建议进一步精修预备边缘或调整修复体的边缘密合度。",
         },
         {
-          dimension: "Axial Contour",
+          dimension: "轴面外形",
           score: scores.axialContour,
           maxScore: 20,
           criteria:
-            "The axial surfaces should be flat or slightly convex, emerging from the margin at the correct angle.",
+            "修复体的轴面应呈平坦或微凸的形态，从边缘以正确的角度继续向外。轴面外形的正确性直接影响牙龈组织的健康和美观效果。",
           reason:
             scores.axialContour >= 18
-              ? "Ideal axial contours that support optimal gingival health."
+              ? "轴面外形设计理想，完美复制了天然牙的形态，有利于维护牙龈的长期健康和美观。"
               : scores.axialContour >= 16
-                ? "Good axial contour with room for minor refinement."
-                : "Some surfaces are over-contoured, which may impact gingival health.",
+                ? "轴面外形整体良好，在某些细节部位仍有进一步精修的空间。"
+                : "部分轴面存在过度突出的情况，可能会对牙龈组织健康产生不利影响，建议进行适当调整。",
         },
         {
-          dimension: "Proximal Contact",
+          dimension: "邻接触关系",
           score: scores.proximalContact,
           maxScore: 20,
-          criteria: "Contacts should be broad, correctly positioned, and have appropriate tightness.",
+          criteria: "邻接触点应当宽大、位置正确，具有适当的紧密度。良好的邻接触关系能够维持牙列的稳定性，防止食物嵌塞，保护龈乳头的健康。",
           reason:
             scores.proximalContact >= 19
-              ? "Excellent contact points with ideal positioning and tightness."
+              ? "邻接触点设计完美，位置精准且紧密度适中，能够有效防止食物嵌塞并维持牙列稳定。"
               : scores.proximalContact >= 17
-                ? "Good contact relationships with minor adjustments needed."
-                : "Contact points require refinement for optimal function.",
+                ? "邻接触关系整体良好，仅需在紧密度或位置方面进行小幅调整。"
+                : "邻接触点需要进一步精修以获得最佳的功能效果，建议调整接触面积和紧密度。",
         },
         {
-          dimension: "Occlusal Relationship",
+          dimension: "咀合关系",
           score: scores.occlusalRelationship,
           maxScore: 20,
           criteria:
-            "The restoration should have stable centric stops and allow for non-interfering excursive movements.",
+            "修复体应具有稳定的中心咀合接触点，并允许颈下颈在各个方向的自由运动而不产生干扰。正确的咀合关系对于颐面关节的健康和咀合系统的稳定至关重要。",
           reason:
             scores.occlusalRelationship >= 18
-              ? "Well-defined centric stops with no interferences detected."
+              ? "中心咀合接触点明确且稳定，无任何咀合干扰，能够保证颐下颈在各个功能运动中的平衡和协调。"
               : scores.occlusalRelationship >= 16
-                ? "Good occlusal relationship with minor contact adjustments needed."
-                : "Some occlusal interferences detected that may require adjustment.",
+                ? "咀合关系整体良好，仅需在某些接触点上进行微调以优化功能效果。"
+                : "检测到一些咀合干扰，可能影响颐下颈的正常功能，建议进行精细的咀合调整。",
         },
         {
-          dimension: "Structural Aesthetics",
+          dimension: "结构美学",
           score: scores.structuralAesthetics,
           maxScore: 20,
           criteria:
-            "Anatomy, such as cusps, fossae, and grooves, should be natural and well-defined. The shade and texture should match adjacent teeth.",
+            "修复体的解剖结构（如牙尖、窩沟、牙沩等）应当自然且清晰可辨，色泽和表面纹理应与邻牙协调一致。良好的结构美学不仅影响外观，还直接关系到哀噂功能的正常发挥。",
           reason:
             scores.structuralAesthetics >= 18
-              ? "Excellent anatomical reproduction with natural-looking surface details."
+              ? "解剖结构复制完美，表面细节自然逐真，与天然牙齿的外观和功能高度一致。"
               : scores.structuralAesthetics >= 16
-                ? "Good anatomical form with room for enhanced surface detailing."
-                : "Primary anatomy is adequate, but secondary grooves could be more defined.",
+                ? "解剖形态整体良好，在表面细节刻画方面仍有提升空间，可进一步优化。"
+                : "主要解剖结构尚可，但继发沟裂和表面纹理需要更加精细地刻画以提升美学效果。",
         },
       ],
     }
@@ -159,13 +159,13 @@ export class MockAnalysisService {
 
   private static generateSummary(overallScore: number, scores: any): string {
     if (overallScore >= 90) {
-      return "Outstanding restoration work! All aspects demonstrate excellent technical skill and attention to detail."
+      return "卓越的修复工艺！各项指标均展现出优秀的技术水准和精细的制作工艺。修复体的边缘密合性、轴面外形、邻接触关系、咀合关系以及结构美学等方面都达到了临床最高标准，能够为患者提供长期稳定的修复效果和优良的使用体验。"
     } else if (overallScore >= 80) {
-      return "Very competent restoration. Most aspects are well-executed with minor areas for improvement."
+      return "技术水平优良的修复体。大部分技术指标执行良好，仅在少数细节方面需要进一步完善。整体制作工艺达到临床要求，能够满足患者的功能需求和美学期望，建议在个别薄弱环节进行针对性改进以达到更高标准。"
     } else if (overallScore >= 70) {
-      return "Good restoration with solid fundamentals. Focus on refining specific areas for enhanced quality."
+      return "基础扎实的良好修复体。整体技术框架合理，主要功能指标基本符合临床标准。建议重点关注并改进特定技术环节，通过精细化调整来提升修复质量，以获得更佳的临床效果和患者满意度。"
     } else {
-      return "Adequate restoration that would benefit from attention to key technical aspects for improvement."
+      return "基本合格的修复体，在关键技术指标方面仍有较大提升空间。建议系统性地重新评估和改进边缘密合、外形设计、咀合调整等核心技术环节，以确保修复体能够达到临床应用的基本要求和长期稳定性。"
     }
   }
 }
