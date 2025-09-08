@@ -119,7 +119,7 @@ export function ScoreBreakdown({ scores }: ScoreBreakdownProps) {
             </div>
           ),
         }
-      case "咀合关系":
+      case "咬合关系":
         return {
           type: "image",
           icon: <Eye className="h-4 w-4" style={{ color: "var(--tech-orange)" }} />,

@@ -280,9 +280,12 @@ function UploadZone({ title, description, file, onFileUpload }: UploadZoneProps)
 
   const handleReplaceClick = () => {
     console.log("[v0] Replace button clicked")
+    console.log("[v0] fileInputRef.current:", fileInputRef.current)
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
       fileInputRef.current.click()
+    } else {
+      console.error("[v0] fileInputRef.current is null")
     }
   }
 
@@ -298,27 +301,36 @@ function UploadZone({ title, description, file, onFileUpload }: UploadZoneProps)
       <div
         className={`rounded-lg p-6 text-center transition-all duration-300 ${
           isDragOver
-            ? "bg-gray-50 border-2 border-gray-400"
+            ? "upload-drag-over"
             : file
-              ? "bg-gray-100 border border-gray-400"
+              ? "upload-success"
               : "bg-gray-50 border border-dashed border-gray-300"
         }`}
+        style={file ? {
+          background: 'linear-gradient(to bottom right, rgb(240, 253, 244), rgb(236, 253, 245))',
+          border: '2px solid rgb(34, 197, 94)',
+          boxShadow: '0 0 0 2px rgba(34, 197, 94, 0.3), 0 4px 6px -1px rgba(34, 197, 94, 0.1)'
+        } : {}}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
         {file ? (
-          <div className="space-y-3">
-            <CheckCircle className="h-12 w-12 mx-auto text-gray-900" />
-            <div>
-              <p className="font-semibold text-gray-900">{file.file.name}</p>
-              <p className="text-sm text-gray-600">{(file.file.size / 1024 / 1024).toFixed(2)} MB</p>
+          <div className="space-y-4">
+            <CheckCircle className="h-12 w-12 mx-auto upload-success-icon" />
+            <div className="space-y-1">
+              <p className="upload-success-text">{file.file.name}</p>
+              <p className="upload-success-subtext text-sm">{(file.file.size / 1024 / 1024).toFixed(2)} MB</p>
+              <div className="flex items-center justify-center space-x-1 mt-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-xs upload-success-subtext">上传成功</span>
+              </div>
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={handleReplaceClick}
-              className="border-gray-400 text-gray-700 hover:bg-gray-100 bg-white/80"
+              className="upload-success-button"
             >
               替换文件
             </Button>
@@ -327,11 +339,13 @@ function UploadZone({ title, description, file, onFileUpload }: UploadZoneProps)
           <div className="space-y-4">
             <Upload
               className={`h-12 w-12 mx-auto transition-all duration-300 ${
-                isDragOver ? "text-gray-600 scale-110" : "text-slate-400"
+                isDragOver ? "text-green-600 scale-110" : "text-slate-400"
               }`}
             />
             <div className="space-y-2">
-              <p className="font-medium text-slate-700">{isDragOver ? "将文件拖放到此处" : "拖放您的3D模型"}</p>
+              <p className={`font-medium transition-colors duration-300 ${isDragOver ? "text-green-700" : "text-slate-700"}`}>
+                {isDragOver ? "将文件拖放到此处" : "拖放您的3D模型"}
+              </p>
               <p className="text-sm text-slate-500">或点击选择文件</p>
             </div>
             <input

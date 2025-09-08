@@ -312,10 +312,10 @@ export function ModelViewer({ upperJawUrl, lowerJawUrl, restorationUrl, classNam
           const center = box.getCenter(new THREE.Vector3())
           geometry.translate(-center.x, -center.y, -center.z)
 
-          const size = box.getSize(new THREE.Vector3())
-          const maxSize = Math.max(size.x, size.y, size.z)
-          const scale = 10 / maxSize
-          geometry.scale(scale, scale, scale)
+          // const size = box.getSize(new THREE.Vector3())
+          // const maxSize = Math.max(size.x, size.y, size.z)
+          // const scale = 10 / maxSize
+          // geometry.scale(scale, scale, scale)
 
           const material = new THREE.MeshPhongMaterial({
             color: color,
