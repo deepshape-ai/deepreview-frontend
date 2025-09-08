@@ -23,21 +23,6 @@ export function ToothPositionSelector({
     return "bg-white text-black hover:bg-gray-50 border-black/30"
   }
 
-  const getToothTypePattern = (type: ToothPosition["type"]) => {
-    switch (type) {
-      case "incisor":
-        return "border-2 border-solid" // Solid border for incisors
-      case "canine":
-        return "border-2 border-dashed" // Dashed border for canines
-      case "premolar":
-        return "border-2 border-dotted" // Dotted border for premolars
-      case "molar":
-        return "border-4 border-double" // Double border for molars
-      default:
-        return "border-2 border-solid"
-    }
-  }
-
   const handleToothClick = (fdiNumber: string, quadrant: number) => {
     const isUpperTooth = quadrant === 1 || quadrant === 2
     const isLowerTooth = quadrant === 3 || quadrant === 4
@@ -96,7 +81,7 @@ export function ToothPositionSelector({
                         ? "bg-black text-white shadow-lg scale-110"
                         : isToothDisabled(tooth.quadrant)
                           ? "opacity-30 cursor-not-allowed"
-                          : `${getToothTypeColor(tooth.type)} ${getToothTypePattern(tooth.type)} hover:scale-105 shadow-sm`
+                          : `${getToothTypeColor(tooth.type)} hover:scale-105 shadow-sm`
                     }`}
                   >
                     <span className="text-xs font-bold">{tooth.fdiNumber}</span>
@@ -116,7 +101,7 @@ export function ToothPositionSelector({
                         ? "bg-black text-white shadow-lg scale-110"
                         : isToothDisabled(tooth.quadrant)
                           ? "opacity-30 cursor-not-allowed"
-                          : `${getToothTypeColor(tooth.type)} ${getToothTypePattern(tooth.type)} hover:scale-105 shadow-sm`
+                          : `${getToothTypeColor(tooth.type)} hover:scale-105 shadow-sm`
                     }`}
                   >
                     <span className="text-xs font-bold">{tooth.fdiNumber}</span>
@@ -143,7 +128,7 @@ export function ToothPositionSelector({
                         ? "bg-black text-white shadow-lg scale-110"
                         : isToothDisabled(tooth.quadrant)
                           ? "opacity-30 cursor-not-allowed"
-                          : `${getToothTypeColor(tooth.type)} ${getToothTypePattern(tooth.type)} hover:scale-105 shadow-sm`
+                          : `${getToothTypeColor(tooth.type)} hover:scale-105 shadow-sm`
                     }`}
                   >
                     <span className="text-xs font-bold">{tooth.fdiNumber}</span>
@@ -163,7 +148,7 @@ export function ToothPositionSelector({
                         ? "bg-black text-white shadow-lg scale-110"
                         : isToothDisabled(tooth.quadrant)
                           ? "opacity-30 cursor-not-allowed"
-                          : `${getToothTypeColor(tooth.type)} ${getToothTypePattern(tooth.type)} hover:scale-105 shadow-sm`
+                          : `${getToothTypeColor(tooth.type)} hover:scale-105 shadow-sm`
                     }`}
                   >
                     <span className="text-xs font-bold">{tooth.fdiNumber}</span>
@@ -206,20 +191,20 @@ export function ToothPositionSelector({
           <h5 className="text-sm font-semibold text-center mb-3 text-black">牙齿类型图例</h5>
           <div className="flex flex-wrap justify-center gap-4 text-sm">
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-white border-2 border-solid border-black/60 rounded"></div>
-              <span className="text-black">切牙 (实线)</span>
+              <div className="w-4 h-4 bg-white border border-black/30 rounded"></div>
+              <span className="text-black">切牙</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-white border-2 border-dashed border-black/60 rounded"></div>
-              <span className="text-black">尖牙 (虚线)</span>
+              <div className="w-4 h-4 bg-white border border-black/30 rounded"></div>
+              <span className="text-black">尖牙</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-white border-2 border-dotted border-black/60 rounded"></div>
-              <span className="text-black">前磨牙 (点线)</span>
+              <div className="w-4 h-4 bg-white border border-black/30 rounded"></div>
+              <span className="text-black">前磨牙</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-white border-4 border-double border-black/60 rounded"></div>
-              <span className="text-black">磨牙 (双线)</span>
+              <div className="w-4 h-4 bg-white border border-black/30 rounded"></div>
+              <span className="text-black">磨牙</span>
             </div>
           </div>
         </div>
