@@ -105,15 +105,19 @@ export default function AnalysisDetailPage() {
         {/* Overall Score and 3D Model Viewer in same row */}
         <div className="grid lg:grid-cols-2 gap-6 mb-6 items-stretch">
           {/* Overall Score Card */}
-          <Card className="transition-all duration-300 hover:shadow-xl border-2 border-black/20 shadow-lg overflow-hidden p-0 bg-white">
+          <Card className="transition-all duration-300 hover:shadow-xl border-0 shadow-lg overflow-hidden p-0 bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-100">
             <CardContent className="p-0 h-full flex flex-col">
               {/* Score Display Section */}
-              <div className="relative bg-white border-b-2 border-black/20 text-black p-6">
+              <div className="relative bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 text-white p-6">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
                 <div className="relative z-10">
                   <div className="text-center mb-4">
-                    <div className="text-5xl font-bold mb-2">{analysis.overallScore}</div>
-                    <div className="text-lg mb-3">/100 分</div>
-                    <Badge variant="outline" className="border-black/30 text-black px-3 py-1 text-sm font-medium">
+                    <div className="text-5xl font-bold mb-2 drop-shadow-sm">{analysis.overallScore}</div>
+                    <div className="text-lg mb-3 opacity-90">/100 分</div>
+                    <Badge
+                      variant="secondary"
+                      className="bg-white/20 text-white border-white/30 px-3 py-1 text-sm font-medium backdrop-blur-sm"
+                    >
                       {analysis.overallScore >= 90
                         ? "卓越表现"
                         : analysis.overallScore >= 80
@@ -127,31 +131,31 @@ export default function AnalysisDetailPage() {
               </div>
 
               {/* Summary Section */}
-              <div className="flex-1 p-6 bg-white">
+              <div className="flex-1 p-6 bg-gradient-to-b from-white to-blue-50/30">
                 <div className="mb-6">
-                  <h3 className="font-bold text-lg mb-3 flex items-center text-black">
-                    <Trophy className="h-5 w-5 mr-2 text-black" />
+                  <h3 className="font-bold text-lg mb-3 flex items-center text-gray-800">
+                    <Trophy className="h-5 w-5 mr-2 text-blue-600" />
                     综合评估报告
                   </h3>
-                  <div className="bg-white rounded-xl p-4 border-2 border-black/20">
-                    <p className="text-black leading-relaxed text-pretty text-sm">{analysis.summary}</p>
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-blue-200/50 shadow-sm">
+                    <p className="text-gray-700 leading-relaxed text-pretty text-sm">{analysis.summary}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold text-black text-sm mb-3">各维度得分详情</h4>
+                  <h4 className="font-semibold text-gray-800 text-sm mb-3">各维度得分详情</h4>
                   <div className="grid grid-cols-2 gap-2">
                     {analysis.detailedScores.map((score, index) => (
                       <div
                         key={score.dimension}
-                        className="flex flex-col p-3 bg-white rounded-lg border border-black/20 hover:shadow-sm transition-all"
+                        className="flex flex-col p-3 bg-white/70 backdrop-blur-sm rounded-lg border border-blue-200/30 hover:shadow-sm transition-all hover:bg-white/90"
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <div className="w-2 h-2 rounded-full bg-black"></div>
-                          <div className={`text-xs font-bold text-black`}>{score.score}/20</div>
+                          <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
+                          <div className={`text-xs font-bold text-blue-700`}>{score.score}/20</div>
                         </div>
-                        <span className="font-medium text-black text-xs leading-tight">{score.dimension}</span>
-                        <div className="text-xs text-gray-600 mt-1">{Math.round((score.score / 20) * 100)}%</div>
+                        <span className="font-medium text-gray-800 text-xs leading-tight">{score.dimension}</span>
+                        <div className="text-xs text-blue-600 mt-1">{Math.round((score.score / 20) * 100)}%</div>
                       </div>
                     ))}
                   </div>
@@ -171,10 +175,10 @@ export default function AnalysisDetailPage() {
           </div>
         </div>
 
-        <Card className="bg-white border-2 border-black/20">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl text-black">详细分析与视觉评估</CardTitle>
-            <p className="text-sm text-gray-600">包含技术参数和视觉分析的综合评估</p>
+        <Card className="bg-gradient-to-br from-slate-50 to-blue-50/50 border border-blue-200/30 shadow-sm">
+          <CardHeader className="pb-4 bg-gradient-to-r from-blue-500/5 to-purple-500/5 border-b border-blue-200/30">
+            <CardTitle className="text-xl text-gray-800">详细分析与视觉评估</CardTitle>
+            <p className="text-sm text-blue-600">包含技术参数和视觉分析的综合评估</p>
           </CardHeader>
           <CardContent className="pt-0">
             <ScoreBreakdown scores={analysis.detailedScores} />
